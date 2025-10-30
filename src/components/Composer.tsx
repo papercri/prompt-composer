@@ -5,6 +5,7 @@ import {
   subscribeUserDoc,
   saveUserDoc,
 } from "@/lib/firebaseActions";
+import { Clipboard, Trash2, FolderPlus, FilePlus } from "lucide-react";
 
 type DataShape = {
   folders: Record<string, string[]>;
@@ -18,50 +19,39 @@ export default function Composer({ user }: { user: any }) {
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
   const [promptText, setPromptText] = useState("");
 
-  // carga inicial + suscripción
   useEffect(() => {
     if (!user?.uid) return;
     let unsub: (() => void) | undefined;
     (async () => {
       const initial = await ensureUserDoc(user.uid);
       setData(initial);
-      unsub = subscribeUserDoc(user.uid, (d: DataShape) => {
-        // conservar promptText localmente, no sobreescribirlo
-        setData(d);
-      });
+      unsub = subscribeUserDoc(user.uid, (d: DataShape) => setData(d));
     })();
     return () => unsub && unsub();
   }, [user?.uid]);
 
-  // helper guardar
   const save = async (newData: DataShape) => {
     if (!user?.uid) return;
     setData(newData);
     await saveUserDoc(user.uid, newData);
   };
 
-  // Añadir frase (desde textarea)
+  // === CRUD ===
   const addPhrase = () => {
     if (!newPhrase.trim()) return;
-    const updated = { ...data, free: [...data.free, newPhrase] };
+    const updated = { ...data, free: [...data.free, newPhrase.trim()] };
     setNewPhrase("");
     save(updated);
   };
 
-  // Añadir carpeta
   const addFolder = () => {
     const name = newFolder.trim();
-    if (!name) return;
-    if (data.folders[name]) {
-      setNewFolder("");
-      return;
-    }
+    if (!name || data.folders[name]) return;
     const updated = { ...data, folders: { ...data.folders, [name]: [] } };
     setNewFolder("");
     save(updated);
   };
 
-  // Eliminar frase (de carpeta o de free)
   const deletePhrase = (folder: string | null, index: number) => {
     const updated = { ...data, folders: { ...data.folders } };
     if (folder) {
@@ -74,318 +64,242 @@ export default function Composer({ user }: { user: any }) {
     save(updated);
   };
 
-  // Eliminar carpeta (mueve su contenido a free)
   const deleteFolder = (folder: string) => {
-    if (!confirm(`¿Seguro que quieres borrar la carpeta "${folder}"?`)) return;
-    const updated = { ...data, folders: { ...data.folders }, free: [...data.free] };
-    updated.free.push(...updated.folders[folder]);
+    if (!confirm(`¿Borrar carpeta "${folder}" y mover frases a libres?`)) return;
+    const updated = {
+      ...data,
+      folders: { ...data.folders },
+      free: [...data.free, ...data.folders[folder]],
+    };
     delete updated.folders[folder];
     save(updated);
   };
 
-  // Accordion toggle
   const toggleFolder = (name: string) => {
     setOpenFolders((prev) => ({ ...prev, [name]: !prev[name] }));
   };
 
-  // --- DRAG & DROP handlers ---
-  // dataTransfer payload: JSON.stringify({ from: "free" | "folder", folderName: string | null, index })
-  const onDragStart = (e: React.DragEvent, from: "free" | "folder", folderName: string | null, index: number) => {
-    const payload = JSON.stringify({ from, folderName, index });
-    e.dataTransfer.setData("text/plain", payload);
+  // === DRAG & DROP ===
+  const onDragStart = (
+    e: React.DragEvent,
+    from: "free" | "folder",
+    folderName: string | null,
+    index: number
+  ) => {
+    e.dataTransfer.setData("text/plain", JSON.stringify({ from, folderName, index }));
     e.dataTransfer.effectAllowed = "move";
   };
+  const onDragOver = (e: React.DragEvent) => e.preventDefault();
 
-  const onDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  };
-
-  // Dropear en carpeta
   const onDropToFolder = (e: React.DragEvent, targetFolder: string) => {
     e.preventDefault();
-    try {
-      const raw = e.dataTransfer.getData("text/plain");
-      if (!raw) return;
-      const { from, folderName, index } = JSON.parse(raw) as {
-        from: "free" | "folder";
-        folderName: string | null;
-        index: number;
-      };
-      const updated: DataShape = { folders: { ...data.folders }, free: [...data.free] };
-
-      // obtener item
-      let item: string | undefined;
-      if (from === "free") {
-        item = updated.free[index];
-        if (item === undefined) return;
-        updated.free.splice(index, 1);
-      } else {
-        const f = folderName!;
-        item = [...updated.folders[f]][index];
-        if (item === undefined) return;
-        updated.folders[f] = [...updated.folders[f]];
-        updated.folders[f].splice(index, 1);
-      }
-
-      // evitar duplicar si ya existe exactamente igual en target (opcional)
-      updated.folders[targetFolder] = [...updated.folders[targetFolder], item];
-
-      save(updated);
-    } catch (err) {
-      console.error("drop error", err);
+    const payload = e.dataTransfer.getData("text/plain");
+    if (!payload) return;
+    const { from, folderName, index } = JSON.parse(payload);
+    const updated: DataShape = { folders: { ...data.folders }, free: [...data.free] };
+    let item: string | undefined;
+    if (from === "free") {
+      item = updated.free[index];
+      updated.free.splice(index, 1);
+    } else {
+      const f = folderName!;
+      item = updated.folders[f][index];
+      updated.folders[f].splice(index, 1);
     }
+    updated.folders[targetFolder] = [...updated.folders[targetFolder], item];
+    save(updated);
   };
 
-  // Dropear en area free
   const onDropToFree = (e: React.DragEvent) => {
     e.preventDefault();
-    try {
-      const raw = e.dataTransfer.getData("text/plain");
-      if (!raw) return;
-      const { from, folderName, index } = JSON.parse(raw) as {
-        from: "free" | "folder";
-        folderName: string | null;
-        index: number;
-      };
-      const updated: DataShape = { folders: { ...data.folders }, free: [...data.free] };
-
-      if (from === "free") {
-        // nada que hacer (ya está en free); si quieres reordenar, habría que manejar índices
-        return;
-      } else {
-        const f = folderName!;
-        const item = [...updated.folders[f]][index];
-        if (item === undefined) return;
-        updated.folders[f] = [...updated.folders[f]];
-        updated.folders[f].splice(index, 1);
-        updated.free.push(item);
-        save(updated);
-      }
-    } catch (err) {
-      console.error("drop free error", err);
+    const payload = e.dataTransfer.getData("text/plain");
+    if (!payload) return;
+    const { from, folderName, index } = JSON.parse(payload);
+    const updated: DataShape = { folders: { ...data.folders }, free: [...data.free] };
+    if (from === "folder") {
+      const f = folderName!;
+      const item = updated.folders[f][index];
+      updated.folders[f].splice(index, 1);
+      updated.free.push(item);
+      save(updated);
     }
   };
 
-  // Doble click para añadir al prompt (preserva saltos de línea)
-  const appendToPrompt = (text: string) => {
-    // si el textarea ya tiene texto, añade una línea en blanco entre frases (opcional)
-    const newPrompt = promptText ? `${promptText}\n${text}` : text;
-    setPromptText(newPrompt);
-  };
+  // === Prompt ===
+  const appendToPrompt = (text: string) =>
+    setPromptText((prev) => (prev ? `${prev}\n${text}` : text));
 
-  // Copiar prompt
   const copyPrompt = async () => {
-    try {
+  if (!promptText) {
+    alert("El prompt está vacío");
+    return;
+  }
+  
+  try {
+    // Intenta usar la API moderna del portapapeles
+    if (navigator.clipboard && navigator.clipboard.writeText) {
       await navigator.clipboard.writeText(promptText);
-      // pequeña notificación no intrusiva
-      const prev = document.getElementById("copy-toast");
-      if (prev) prev.remove();
-      const toast = document.createElement("div");
-      toast.id = "copy-toast";
-      toast.textContent = "Prompt copiado ✅";
-      Object.assign(toast.style, {
-        position: "fixed",
-        right: "20px",
-        bottom: "20px",
-        background: "#111827",
-        color: "white",
-        padding: "8px 12px",
-        borderRadius: "8px",
-        zIndex: "9999",
-        boxShadow: "0 6px 18px rgba(0,0,0,0.15)",
-      });
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 1500);
-    } catch (err) {
-      alert("No se pudo copiar el prompt");
+    } else {
+      // Fallback para navegadores antiguos o sin HTTPS
+      const textarea = document.createElement("textarea");
+      textarea.value = promptText;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
     }
-  };
+
+    // Toast sencillo: crea y elimina automáticamente
+    const toast = document.createElement("div");
+    toast.textContent = "Prompt copiado ✅";
+    Object.assign(toast.style, {
+      position: "fixed",
+      right: "20px",
+      bottom: "20px",
+      background: "#111827",
+      color: "white",
+      padding: "8px 12px",
+      borderRadius: "8px",
+      zIndex: "9999",
+      boxShadow: "0 6px 18px rgba(0,0,0,0.15)",
+      opacity: "0",
+      transition: "opacity 0.2s ease",
+    });
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      toast.style.opacity = "1";
+    });
+
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      setTimeout(() => toast.remove(), 200);
+    }, 1200);
+  } catch (err) {
+    console.error("Error copiando:", err);
+    alert(`No se pudo copiar: ${err instanceof Error ? err.message : 'Error desconocido'}`);
+  }
+};
+
 
   const clearPrompt = () => setPromptText("");
 
-  // Small helper to render phrase box (used in free and in folder)
-  const PhraseBox = ({
-    text,
-    onDelete,
-    draggableProps,
-    onDoubleClick,
-  }: {
-    text: string;
-    onDelete: () => void;
-    draggableProps?: {
-      draggable: boolean;
-      onDragStart: (e: React.DragEvent) => void;
-    };
-    onDoubleClick?: () => void;
-  }) => {
-    return (
-      <div
-        draggable={draggableProps?.draggable ?? false}
-        onDragStart={draggableProps?.onDragStart}
-        onDoubleClick={onDoubleClick}
-        className="group bg-gradient-to-br from-white to-slate-50 border border-slate-200 px-3 py-2 rounded-lg shadow-sm max-w-[280px] break-words whitespace-pre-wrap cursor-move hover:shadow-md transition"
-      >
-        <div className="text-sm text-slate-800">{text}</div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="opacity-0 group-hover:opacity-100 transition absolute right-2 top-2 text-red-500 text-xs"
-          aria-label="Eliminar frase"
-          title="Eliminar frase"
-        >
-          ✕
-        </button>
-      </div>
-    );
-  };
-
-  // Render
+  // === UI ===
   return (
-    <div className="flex gap-6 p-6 bg-slate-50">
+    <div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-6 min-h-screen bg-slate-50">
       {/* SIDEBAR */}
-      <aside className="w-72 bg-white rounded-2xl shadow-lg p-4 flex flex-col gap-4">
-        <h3 className="text-lg font-semibold text-slate-700">Carpetas</h3>
-
-        <div className="flex-1 overflow-auto pr-2 space-y-3">
-          {Object.keys(data.folders).length === 0 && (
-            <div className="text-sm text-slate-500">No hay carpetas todavía.</div>
-          )}
-
-          {Object.keys(data.folders).map((folder) => (
-            <div
-              key={folder}
-              className="bg-white border border-slate-100 rounded-xl overflow-hidden"
-            >
-              {/* header: droppable (soporta drop en header too) */}
+      <aside className="w-full lg:w-72 bg-white rounded-2xl shadow-lg gap-4   border-r border-slate-200 p-5 flex flex-col justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-700 mb-4 flex items-center gap-2">
+            📁 Carpetas
+          </h2>
+          <div className="space-y-3 overflow-auto max-h-[65vh] pr-2">
+            {Object.keys(data.folders).length === 0 && (
+              <p className="text-sm text-slate-500">Sin carpetas</p>
+            )}
+            {Object.keys(data.folders).map((folder) => (
               <div
-                onDragOver={onDragOver}
-                onDrop={(e) => {
-                  e.stopPropagation();
-                  onDropToFolder(e, folder);
-                }}
-                className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-slate-50"
-                onClick={() => toggleFolder(folder)}
+                key={folder}
+                className="border border-slate-200 rounded-lg overflow-hidden bg-gradient-to-br from-white to-slate-50"
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">📁</span>
-                  <div>
-                    <div className="text-sm font-medium text-slate-800">{folder}</div>
-                    <div className="text-xs text-slate-400">{data.folders[folder].length} frases</div>
+                <div
+                  onClick={() => toggleFolder(folder)}
+                  onDragOver={onDragOver}
+                  onDrop={(e) => onDropToFolder(e, folder)}
+                  className="flex justify-between items-center px-3 py-2 hover:bg-slate-50 cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <span>{openFolders[folder] ? "📂" : "📁"}</span>
+                    <span className="font-medium text-slate-700">{folder}</span>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-2">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       deleteFolder(folder);
                     }}
-                    className="text-red-500 text-sm px-2 py-1 rounded hover:bg-red-50"
-                    title="Eliminar carpeta"
+                    className="text-red-500 hover:text-red-700"
                   >
-                    Eliminar
-                  </button>
-                  <button
-                    className="text-slate-400 text-sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFolder(folder);
-                    }}
-                    aria-expanded={!!openFolders[folder]}
-                  >
-                    {openFolders[folder] ? "▾" : "▸"}
+                    <Trash2 size={16} />
                   </button>
                 </div>
-              </div>
-
-              {/* contenido */}
-              {openFolders[folder] && (
-                <div className="p-3 flex flex-wrap gap-2 bg-slate-50" onDragOver={onDragOver} onDrop={(e) => onDropToFolder(e, folder)}>
-                  {data.folders[folder].map((p, idx) => (
-                    <div
-                      key={idx}
-                      onDoubleClick={() => appendToPrompt(p)}
-                      draggable
-                      onDragStart={(e) => onDragStart(e, "folder", folder, idx)}
-                    >
-                      <div className="relative">
-                        <div className="bg-white border border-slate-200 px-3 py-2 rounded-lg shadow-sm max-w-[240px] break-words whitespace-pre-wrap cursor-pointer hover:shadow">
-                          <div className="text-sm text-slate-800">{p}</div>
-                        </div>
+                {openFolders[folder] && (
+                  <div className="px-3 pb-3 flex flex-wrap gap-2 transition-all duration-300">
+                    {data.folders[folder].map((p, i) => (
+                      <div
+                        key={i}
+                        onDoubleClick={() => appendToPrompt(p)}
+                        draggable
+                        onDragStart={(e) => onDragStart(e, "folder", folder, i)}
+                        className="relative bg-white border border-slate-200 shadow-sm rounded-md px-3 py-1 text-sm whitespace-pre-wrap cursor-pointer hover:shadow-md"
+                      >
+                        {p}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            deletePhrase(folder, idx);
+                            deletePhrase(folder, i);
                           }}
-                          className="absolute -top-2 -right-2 bg-white border border-slate-200 rounded-full w-6 h-6 flex items-center justify-center text-red-500 hover:bg-red-50"
-                          title="Eliminar frase"
+                          className="absolute -top-1 -right-1 text-xs bg-white border border-slate-200 rounded-full text-red-500 w-5 h-5 flex items-center justify-center"
                         >
                           ✕
                         </button>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* añadir carpeta */}
-        <div className="pt-2 border-t border-slate-100">
-          <label className="text-xs text-slate-500">Crear carpeta</label>
-          <div className="flex gap-2 mt-2">
+        {/* Add folder */}
+        <div className="pt-3 border-t border-slate-200">
+          <div className="flex gap-2">
             <input
               value={newFolder}
               onChange={(e) => setNewFolder(e.target.value)}
-              placeholder="Nombre carpeta"
-              className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm"
+              placeholder="Nueva carpeta"
+              className="flex-1 px-2 py-1 border border-slate-300 rounded-md text-sm"
             />
             <button
               onClick={addFolder}
-              className="px-3 py-2 rounded-lg bg-sky-600 text-white text-sm hover:bg-sky-700"
+              className="bg-sky-600 hover:bg-sky-700 text-white px-2 py-1 rounded-md text-sm flex items-center gap-1"
             >
-              Añadir
+              <FolderPlus size={16} /> Crear
             </button>
           </div>
         </div>
       </aside>
 
       {/* MAIN */}
-      <main className="flex-1 flex flex-col gap-6">
-        {/* Free phrases area (droppable) */}
+      <main className="flex-1 p-8 flex flex-col gap-8 overflow-auto">
+        {/* Frases libres */}
         <section
-          className="bg-white rounded-2xl shadow p-4"
+          className="bg-white rounded-2xl shadow p-5"
           onDragOver={onDragOver}
           onDrop={onDropToFree}
         >
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex justify-between items-center mb-3">
             <h3 className="text-lg font-semibold text-slate-700">Frases libres</h3>
-            <div className="text-sm text-slate-400">{data.free.length} frases</div>
+            <span className="text-sm text-slate-400">{data.free.length}</span>
           </div>
-
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2">
             {data.free.map((p, i) => (
               <div
                 key={i}
                 draggable
                 onDragStart={(e) => onDragStart(e, "free", null, i)}
                 onDoubleClick={() => appendToPrompt(p)}
-                className="relative"
+                className="relative bg-white border border-slate-200 shadow-sm rounded-md px-3 py-1 text-sm whitespace-pre-wrap cursor-move hover:shadow-md"
               >
-                <div className="bg-white border border-slate-200 px-3 py-2 rounded-lg shadow-sm max-w-[280px] break-words whitespace-pre-wrap cursor-move hover:shadow">
-                  <div className="text-sm text-slate-800">{p}</div>
-                </div>
+                {p}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     deletePhrase(null, i);
                   }}
-                  className="absolute -top-2 -right-2 bg-white border border-slate-200 rounded-full w-6 h-6 flex items-center justify-center text-red-500 hover:bg-red-50"
-                  title="Eliminar frase"
+                  className="absolute -top-1 -right-1 text-xs bg-white border border-slate-200 rounded-full text-red-500 w-5 h-5 flex items-center justify-center"
                 >
                   ✕
                 </button>
@@ -393,57 +307,57 @@ export default function Composer({ user }: { user: any }) {
             ))}
           </div>
 
-          {/* añadir nueva frase (multiline) */}
-          <div className="mt-4 pt-4 border-t border-slate-100">
-            <label className="text-sm text-slate-600">Nueva frase (puede contener saltos de línea)</label>
-            <div className="flex gap-3 mt-2">
+          {/* Añadir frase */}
+          <div className="mt-4 border-t border-slate-200 pt-3">
+            <label className="text-sm text-slate-600 mb-1 block">
+              Nueva frase (puede tener saltos de línea)
+            </label>
+            <div className="flex gap-2">
               <textarea
                 rows={3}
                 value={newPhrase}
                 onChange={(e) => setNewPhrase(e.target.value)}
-                placeholder="Escribe la frase... (shift+enter para salto de línea)"
-                className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none"
+                placeholder="Escribe tu frase..."
+                className="flex-1 border border-slate-300 rounded-md px-3 py-2 text-sm resize-none"
               />
-              <button onClick={addPhrase} className="px-4 py-2 rounded-lg bg-sky-600 text-white hover:bg-sky-700">
-                Guardar
+              <button
+                onClick={addPhrase}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-md flex items-center gap-1"
+              >
+                <FilePlus size={16} /> Guardar
               </button>
             </div>
-            <div className="text-xs text-slate-400 mt-2">Doble click en una frase para añadirla al prompt.</div>
           </div>
         </section>
 
-        {/* Prompt builder + canvas */}
-        <section className="bg-white rounded-2xl shadow p-4 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-slate-700">Prompt (texto)</h3>
+        {/* Prompt builder */}
+        <section className="bg-white rounded-2xl shadow p-5">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-lg font-semibold text-slate-700">Prompt generado</h3>
             <div className="flex gap-2">
               <button
                 onClick={copyPrompt}
-                className="px-3 py-1 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md flex items-center gap-1"
               >
-                Copiar
+                <Clipboard size={16} /> Copiar
               </button>
               <button
                 onClick={clearPrompt}
-                className="px-3 py-1 text-sm bg-rose-500 text-white rounded-lg hover:bg-rose-600"
+                className="bg-rose-500 hover:bg-rose-600 text-white px-3 py-1 rounded-md"
               >
                 Borrar
               </button>
             </div>
           </div>
-
           <textarea
             rows={8}
             value={promptText}
             onChange={(e) => setPromptText(e.target.value)}
-            placeholder="Aquí se genera el prompt. Puedes escribir manualmente o doble-click en una frase para insertarla."
-            className="w-full p-3 border border-slate-200 rounded-lg text-sm resize-vertical font-mono"
+            placeholder="Doble clic en frases o escribe manualmente..."
+            className="w-full border border-slate-300 rounded-md p-3 text-sm font-mono resize-vertical"
           />
-
-          <div className="text-xs text-slate-400">
-            El texto mantiene saltos de línea. Úsalo tal cual para enviarlo a ChatGPT u otra IA.
-          </div>
         </section>
+
       </main>
     </div>
   );
