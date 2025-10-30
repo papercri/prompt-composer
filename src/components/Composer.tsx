@@ -25,7 +25,8 @@ export default function Composer({ user }: { user: User }) {
     if (!user?.uid) return;
     let unsub: (() => void) | undefined;
     (async () => {
-      const initial = await ensureUserDoc(user.uid);
+      const initial = await ensureUserDoc(user.uid!);
+      unsub = subscribeUserDoc(user.uid!, (d: DataShape) => setData(d));  
       setData(initial);
       unsub = subscribeUserDoc(user.uid, (d: DataShape) => setData(d));
     })();
