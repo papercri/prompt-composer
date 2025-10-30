@@ -6,13 +6,12 @@ import {
   saveUserDoc,
 } from "@/lib/firebaseActions";
 import { Clipboard, Trash2, FolderPlus, FilePlus } from "lucide-react";
+import { User } from "firebase/auth";
 
 type DataShape = {
   folders: Record<string, string[]>;
   free: string[];
 };
-
-type User = { uid?: string } | null;
 
 export default function Composer({ user }: { user: User }) {
   const [data, setData] = useState<DataShape>({ folders: {}, free: [] });
@@ -20,8 +19,7 @@ export default function Composer({ user }: { user: User }) {
   const [newFolder, setNewFolder] = useState("");
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
   const [promptText, setPromptText] = useState("");
-
-    useEffect(() => {
+ useEffect(() => {
     if (!user?.uid) return;
     const uid = user.uid; // Capturamos el uid como string
     let unsub: (() => void) | undefined;
