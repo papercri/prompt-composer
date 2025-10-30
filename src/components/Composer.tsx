@@ -24,7 +24,7 @@ export default function Composer({ user }: { user: User }) {
    useEffect(() => {
   if (!user?.uid) return; // ✅ Evita ejecutar si el UID aún no está disponible
 
-  let unsub: (() => void) | undefined;
+  let unsub: (() => void);
 
   (async () => {
     try {
@@ -108,7 +108,7 @@ export default function Composer({ user }: { user: User }) {
     if (!payload) return;
     const { from, folderName, index } = JSON.parse(payload);
     const updated: DataShape = { folders: { ...data.folders }, free: [...data.free] };
-    let item: string | undefined;
+    let item: string;
     if (from === "free") {
       item = updated.free[index];
       updated.free.splice(index, 1);
