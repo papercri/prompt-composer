@@ -21,25 +21,25 @@ export default function Composer({ user }: { user: User }) {
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
   const [promptText, setPromptText] = useState("");
 
-   useEffect(() => {
-  if (!user?.uid) return; // ✅ Evita ejecutar si el UID aún no está disponible
+    useEffect(() => {
+    if (!user?.uid) return;
+    const uid = user.uid; // Capturamos el uid como string
+    let unsub: (() => void) | undefined;
 
-  let unsub: (() => void);
+    (async () => {
+      try {
+        const initial = await ensureUserDoc(uid);
+        setData(initial);
+        unsub = subscribeUserDoc(uid, (d: DataShape) => setData(d));
+      } catch (error) {
+        console.error("Error inicializando documento de usuario:", error);
+      }
+    })();
 
-  (async () => {
-    try {
-      const initial = await ensureUserDoc(user.uid);
-      setData(initial);
-      unsub = subscribeUserDoc(user.uid, (d: DataShape) => setData(d));
-    } catch (error) {
-      console.error("Error inicializando documento de usuario:", error);
-    }
-  })();
-
-  return () => {
-    if (unsub) unsub();
-  };
-}, [user]);
+    return () => {
+      if (unsub) unsub();
+    };
+  }, [user]);
 
   const save = async (newData: DataShape) => {
     if (!user?.uid) return;
