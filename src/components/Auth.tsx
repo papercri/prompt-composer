@@ -74,7 +74,7 @@ export default function Auth({
   }
 
   return (
-    <div className="flex flex-col min-h-screen w-full">
+    <div className="flex flex-col min-h-screen w-full bg-slate-50">
       {/* HEADER */}
       <header className="fixed top-0 left-0 right-0 bg-white shadow-md p-3 md:p-4 flex justify-between items-center z-50">
         <div className="font-bold text-gray-700 text-lg md:text-xl">

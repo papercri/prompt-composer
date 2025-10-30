@@ -191,7 +191,7 @@ export default function Composer({ user }: { user: User }) {
 
   // === UI ===
   return (
-    <div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-6 min-h-screen bg-slate-50">
+    <div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-6 min-h-screen">
       {/* SIDEBAR */}
       <aside className="w-full lg:w-72 bg-white rounded-2xl shadow-lg gap-4   border-r border-slate-200 p-5 flex flex-col justify-between">
         <div>
