@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Prompt Composer
 
-First, run the development server:
+Prompt Composer es una aplicación web construida con Next.js y TypeScript que permite crear, organizar y combinar frases para generar prompts de manera rápida y eficiente. Las frases se pueden guardar en carpetas, arrastrar y soltar, y generar un prompt completo listo para copiar y usar en ChatGPT u otras IA.
+
+## Características
+
+- Inicio de sesión con Google o GitHub.
+- Gestión de frases libres: agregar, eliminar, arrastrar y doble click para insertar en el prompt.
+- Gestión de carpetas: crear, eliminar y arrastrar frases dentro de carpetas.
+- Área de prompt editable: combinación de frases y texto manual.
+- Copiar y borrar el prompt completo manteniendo saltos de línea.
+- Interfaz moderna y responsiva, adaptada a escritorio, tablet y móvil.
+
+## Tecnologías
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Firebase (Autenticación y almacenamiento de datos)
+- Drag & Drop nativo para mover frases entre secciones
+
+## Instalación
+
+1. Clonar el repositorio:
+
+```bash
+git clone https://github.com/papercri/prompt-composer.git
+cd prompt-composer
+```
+
+2. Instalar dependencias:
+
+```bash
+npm install
+# o
+yarn install
+# o
+pnpm install
+```
+
+3. Configurar variables de entorno para Firebase:
+
+Crea un archivo `.env.local` con tu configuración de Firebase:
+
+```
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+NEXT_PUBLIC_FIREBASE_APP_ID=...
+```
+
+4. Iniciar el servidor de desarrollo:
 
 ```bash
 npm run dev
-# or
+# o
 yarn dev
-# or
+# o
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Uso
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Inicia sesión con Google o GitHub.
+2. Crea frases libres o carpetas para organizar tus frases.
+3. Arrastra frases entre libre y carpetas según necesites.
+4. Doble click en cualquier frase para añadirla al prompt.
+5. Copia el prompt completo con el botón "Copiar" o bórralo con "Borrar".
 
-## Learn More
+## Contribución
 
-To learn more about Next.js, take a look at the following resources:
+Si deseas contribuir, haz un fork del repositorio, crea una rama con tu feature o fix y envía un pull request.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Licencia
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Este proyecto está disponible bajo la licencia MIT.
