@@ -21,14 +21,14 @@ export default function Composer({ user }: { user: User }) {
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
   const [promptText, setPromptText] = useState("");
 
-  useEffect(() => {
+    useEffect(() => {
     if (!user?.uid) return;
     let unsub: (() => void) | undefined;
     (async () => {
-      const initial = await ensureUserDoc(user.uid!);
-      unsub = subscribeUserDoc(user.uid!, (d: DataShape) => setData(d));  
+      const uid = user.uid!; // Guardamos el uid en una variable
+      const initial = await ensureUserDoc(uid);
       setData(initial);
-      unsub = subscribeUserDoc(user.uid, (d: DataShape) => setData(d));
+      unsub = subscribeUserDoc(uid, (d: DataShape) => setData(d));
     })();
     return () => unsub && unsub();
   }, [user?.uid]);
