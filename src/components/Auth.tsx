@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import React from "react"; 
+import { useEffect, useState, JSX } from "react";
 import {
   signInWithGoogle,
   signInWithGithub,
@@ -58,7 +59,14 @@ export default function Auth({
           </div>
 
           <p className="mt-8 text-xs text-gray-400">
-            © {new Date().getFullYear()} Prompt Composer
+            © {new Date().getFullYear()} Prompt Composer by <a
+            href="https://www.linkedin.com/in/cristianasollini/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sky-300 hover:text-white transition-colors"
+            >
+            @papercri
+            </a>
           </p>
         </div>
       </div>
