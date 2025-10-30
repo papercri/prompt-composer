@@ -244,7 +244,7 @@ export default function Composer({ user }: { user: any }) {
 
   // Render
   return (
-    <div className="min-h-screen flex gap-6 p-6 bg-slate-50">
+    <div className="flex gap-6 p-6 bg-slate-50">
       {/* SIDEBAR */}
       <aside className="w-72 bg-white rounded-2xl shadow-lg p-4 flex flex-col gap-4">
         <h3 className="text-lg font-semibold text-slate-700">Carpetas</h3>

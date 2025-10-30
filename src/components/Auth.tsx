@@ -1,8 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
-import { signInWithGoogle, signInWithGithub, signOut, watchAuthState } from "@/lib/firebase";
+import {
+  signInWithGoogle,
+  signInWithGithub,
+  signOut,
+  watchAuthState,
+} from "@/lib/firebase";
 
-export default function Auth({ children }: { children: (user: any) => JSX.Element }) {
+export default function Auth({
+  children,
+}: {
+  children: (user: any) => JSX.Element;
+}) {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -15,7 +24,9 @@ export default function Auth({ children }: { children: (user: any) => JSX.Elemen
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-center">
           <h1 className="text-3xl font-bold mb-4 text-gray-800">Prompt Composer</h1>
-          <p className="mb-6 text-gray-600">Inicia sesión para guardar tus frases y carpetas en la nube.</p>
+          <p className="mb-6 text-gray-600">
+            Inicia sesión para guardar tus frases y carpetas en la nube.
+          </p>
           <div className="flex flex-col gap-3">
             <button
               onClick={signInWithGoogle}
@@ -36,17 +47,28 @@ export default function Auth({ children }: { children: (user: any) => JSX.Elemen
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-white shadow p-4 flex justify-between items-center">
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* HEADER */}
+      <header className="fixed top-0 left-0 right-0 bg-white shadow p-4 flex justify-between items-center z-50">
         <div className="font-bold text-gray-700">Prompt Composer</div>
         <div className="flex items-center gap-3">
           <div className="text-sm text-gray-600">{user.displayName}</div>
-          <button onClick={signOut} className="text-sm text-red-600 hover:underline">
+          <button
+            onClick={signOut}
+            className="text-sm text-red-600 hover:underline"
+          >
             Cerrar sesión
           </button>
         </div>
       </header>
-      <main className="flex-1 bg-gray-50">{children(user)}</main>
+
+      {/* MAIN */}
+      <main className="flex-1 pt-20 px-4 overflow-auto">{children(user)}</main>
+
+      {/* FOOTER */}
+      <footer className="w-full bg-slate-900 text-slate-200 text-sm text-center py-3">
+        © {new Date().getFullYear()} Prompt Composer — Creado por @papercri
+      </footer>
     </div>
   );
 }
