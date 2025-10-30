@@ -23,9 +23,9 @@ export default function Composer({ user }: { user: User }) {
 
     useEffect(() => {
     if (!user?.uid) return;
+    const uid = user.uid; // Capturamos el uid antes del async
     let unsub: (() => void) | undefined;
     (async () => {
-      const uid = user.uid!; // Guardamos el uid en una variable
       const initial = await ensureUserDoc(uid);
       setData(initial);
       unsub = subscribeUserDoc(uid, (d: DataShape) => setData(d));
