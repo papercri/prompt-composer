@@ -12,7 +12,9 @@ type DataShape = {
   free: string[];
 };
 
-export default function Composer({ user }: { user: any }) {
+type User = { uid?: string } | null;
+
+export default function Composer({ user }: { user: User }) {
   const [data, setData] = useState<DataShape>({ folders: {}, free: [] });
   const [newPhrase, setNewPhrase] = useState("");
   const [newFolder, setNewFolder] = useState("");

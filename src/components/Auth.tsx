@@ -6,13 +6,14 @@ import {
   signOut,
   watchAuthState,
 } from "@/lib/firebase";
+import { User } from "firebase/auth";
 
 export default function Auth({
   children,
 }: {
-  children: (user: any) => JSX.Element;
+  children: (user: User) => JSX.Element;
 }) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const unsub = watchAuthState((u) => setUser(u));
@@ -91,7 +92,7 @@ export default function Auth({
 
       {/* FOOTER */}
       <footer className="w-full bg-slate-900 text-slate-200 text-sm text-center py-3 flex-shrink-0">
-        © {new Date().getFullYear()} Prompt Composer —{" "}
+        © {new Date().getFullYear()} Prompt Composer by{" "}
         <a
           href="https://www.linkedin.com/in/cristianasollini/"
           target="_blank"
