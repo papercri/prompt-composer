@@ -301,7 +301,7 @@ const saveEditedFolder = () => {
                 onDragOver={(e) => e.preventDefault()}
                 onDragEnter={() => setDragOverFolder(folder)}
                 onDragLeave={() => setDragOverFolder(null)}
-                onDrop={() => handleDrop(folder)}
+                onDrop={(e) => onDropToFolder(e, folder)} // <- usa tu función existente
               >
                 {/* HEADER DE CARPETA */}
                 <div
@@ -357,7 +357,7 @@ const saveEditedFolder = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        startEditFolder(folder); // 🔧 corregido
+                        startEditFolder(folder);
                       }}
                       className="text-[#8D86C9] hover:text-[#9067C6] flex items-center gap-1 text-sm font-medium"
                       title="Modificar carpeta"
@@ -378,27 +378,39 @@ const saveEditedFolder = () => {
                   </div>
                 </div>
 
-                {/* CONTENIDO DE LA CARPETA */}
+                {/* CONTENIDO DE LA CARPETA (restaurado: doble click + botón borrar) */}
                 {openFolders[folder] && (
-                  <ul className="bg-[#F7ECE1] p-2 space-y-1">
+                  <div className="px-3 pb-3 flex flex-wrap gap-2">
                     {data.folders[folder].length > 0 ? (
                       data.folders[folder].map((phrase, index) => (
-                        <li
+                        <div
                           key={index}
-                          className="text-sm p-2 bg-white rounded-md shadow-sm border border-[#CAC4CE] hover:bg-[#8D86C9]/10 transition-all"
+                          onDoubleClick={() => appendToPrompt(phrase)}              // <- doble click -> añade al prompt
                           draggable
-                          onDragStart={(e) => handleDragStart(e, phrase)}
+                          onDragStart={(e) => onDragStart(e, "folder", folder, index)} // <- usa onDragStart existente
+                          className="relative bg-white border border-[#CAC4CE] rounded-lg px-3 py-1 text-sm text-[#242038] cursor-pointer hover:shadow-md transition-all"
                         >
                           {phrase}
-                        </li>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deletePhrase(folder, index); // <- botón borrar restaurado
+                            }}
+                            className="absolute -top-1.5 -right-1.5 text-xs bg-white border border-[#CAC4CE] rounded-full text-rose-500 w-5 h-5 flex items-center justify-center shadow-sm hover:bg-rose-50"
+                            title="Eliminar frase"
+                          >
+                            ✕
+                          </button>
+                        </div>
                       ))
                     ) : (
-                      <li className="text-xs italic text-[#8D86C9]">Sin frases</li>
+                      <div className="text-xs italic text-[#8D86C9] p-2">Sin frases</div>
                     )}
-                  </ul>
+                  </div>
                 )}
               </div>
             ))}
+
           </div>
         </div>
       </aside>
@@ -447,7 +459,7 @@ const saveEditedFolder = () => {
               value={newPhrase}
               onChange={(e) => setNewPhrase(e.target.value)}
               placeholder="Escribe tu frase..."
-              className="w-full border border-[#CAC4CE] rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-[#9067C6] outline-none"
+              className="w-full border border-[#CAC4CE] rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-[#9067C6] outline-none resize-none"
             />
             <button
               onClick={addPhrase}
@@ -459,7 +471,7 @@ const saveEditedFolder = () => {
         </section>
 
         {/* Prompt generado */}
-        <section className="bg-white border border-[#CAC4CE] rounded-2xl shadow-lg p-5 flex flex-col flex-1">
+        <section className="bg-white border border-[#CAC4CE] rounded-2xl shadow-lg p-5 flex flex-col flex-1 max-h-[350px]">
           <div className="flex justify-between items-center mb-3">
             <h3 className="text-lg font-semibold flex items-center gap-2 text-[#242038]">
               <Clipboard className="text-[#9067C6]" size={18} />
