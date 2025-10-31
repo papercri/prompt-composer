@@ -199,11 +199,29 @@ export default function Composer({ user }: { user: User }) {
   return (
     <div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-6 min-h-screen">
       {/* SIDEBAR */}
-      <aside className="w-full lg:w-72 bg-white rounded-2xl shadow-lg gap-4   border-r border-slate-200 p-5 flex flex-col justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-slate-700 mb-4 flex items-center gap-2">
+      <aside className="w-full lg:w-72 bg-white rounded-2xl shadow-lg gap-4   border-r border-slate-200 p-5 flex flex-col ">
+        {/* Add folder */}
+        <div className="pb-3 border-b border-slate-200">
+            <h2 className="text-lg font-semibold text-slate-700 mb-4 flex items-center gap-2">
             📁 Carpetas
           </h2>
+          <div className="flex gap-2">
+            <input
+              value={newFolder}
+              onChange={(e) => setNewFolder(e.target.value)}
+              placeholder="Nueva carpeta"
+              className="flex-1 px-2 py-1 border border-slate-300 rounded-md text-sm"
+            />
+            <button
+              onClick={addFolder}
+              className="bg-sky-600 hover:bg-sky-700 text-white px-2 py-1 rounded-md text-sm flex items-center gap-1"
+            >
+              <FolderPlus size={16} /> Crear
+            </button>
+          </div>
+        </div>
+        <div>
+          
           <div className="space-y-3 overflow-auto max-h-[65vh] pr-2">
             {Object.keys(data.folders).length === 0 && (
               <p className="text-sm text-slate-500">Sin carpetas</p>
@@ -262,23 +280,7 @@ export default function Composer({ user }: { user: User }) {
           </div>
         </div>
 
-        {/* Add folder */}
-        <div className="pt-3 border-t border-slate-200">
-          <div className="flex gap-2">
-            <input
-              value={newFolder}
-              onChange={(e) => setNewFolder(e.target.value)}
-              placeholder="Nueva carpeta"
-              className="flex-1 px-2 py-1 border border-slate-300 rounded-md text-sm"
-            />
-            <button
-              onClick={addFolder}
-              className="bg-sky-600 hover:bg-sky-700 text-white px-2 py-1 rounded-md text-sm flex items-center gap-1"
-            >
-              <FolderPlus size={16} /> Crear
-            </button>
-          </div>
-        </div>
+        
       </aside>
 
       {/* MAIN */}
