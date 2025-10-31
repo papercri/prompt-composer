@@ -16,10 +16,10 @@ export default function LoginScreen() {
         <div className="flex flex-col gap-3">
           <button
             onClick={signInWithGoogle}
-            className="flex items-center justify-center gap-2 bg-[#DB4437] hover:bg-[#C33C30] text-white px-4 py-2.5 rounded-xl font-medium shadow-md transition-all"
+            className="flex items-center justify-center gap-2 bg-white  hover:bg-[#F7ECE1] text-[#DB4437] px-4 py-2.5 rounded-xl font-medium shadow-md transition-all"
           >
             <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              src="/google-color.svg"
               alt="Google"
               className="w-5 h-5"
             />
@@ -28,10 +28,10 @@ export default function LoginScreen() {
 
           <button
             onClick={signInWithGithub}
-            className="flex items-center justify-center gap-2 bg-[#242038] hover:bg-black text-white px-4 py-2.5 rounded-xl font-medium shadow-md transition-all"
+            className="flex items-center justify-center gap-2 bg-white   text-[#242038]  hover:bg-[#F7ECE1] px-4 py-2.5 rounded-xl font-medium shadow-md transition-all"
           >
             <img
-              src="https://www.svgrepo.com/show/512317/github-142.svg"
+              src="/github.svg"
               alt="GitHub"
               className="w-5 h-5"
             />
