@@ -197,14 +197,12 @@ export default function Composer({ user }: { user: User }) {
 
   // === UI ===
   return (
-    <div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-6 min-h-screen">
+    <div className="flex flex-col lg:flex-row gap-2 p-2 lg:p-2 max-h-screen">
       {/* SIDEBAR */}
       <aside className="w-full lg:w-72 bg-white rounded-2xl shadow-lg gap-4   border-r border-slate-200 p-5 flex flex-col ">
         {/* Add folder */}
         <div className="pb-3 border-b border-slate-200">
-            <h2 className="text-lg font-semibold text-slate-700 mb-4 flex items-center gap-2">
-            📁 Carpetas
-          </h2>
+ 
           <div className="flex gap-2">
             <input
               value={newFolder}
@@ -284,17 +282,14 @@ export default function Composer({ user }: { user: User }) {
       </aside>
 
       {/* MAIN */}
-      <main className="flex-1 p-8 flex flex-col gap-8 overflow-auto">
+      <main className="flex-1 p-2 flex flex-col gap-2 overflow-auto">
         {/* Frases libres */}
         <section
           className="bg-white rounded-2xl shadow p-5"
           onDragOver={onDragOver}
           onDrop={onDropToFree}
         >
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="text-lg font-semibold text-slate-700">Frases libres</h3>
-            <span className="text-sm text-slate-400">{data.free.length}</span>
-          </div>
+          
           <div className="flex flex-wrap gap-2">
             {data.free.map((p, i) => (
               <div
