@@ -2,7 +2,7 @@ import { FolderPlus } from "lucide-react";
 import FolderItem from "./FolderItem";
 
 interface SidebarProps {
-  data: { folders: Record<string, unknown> };
+  data: { folders: Record<string, string[]> };
   newFolder: string;
   setNewFolder: (value: string) => void;
   addFolder: () => void;
@@ -11,7 +11,7 @@ interface SidebarProps {
   deleteFolder: (folder: string) => void;
   deletePhrase: (folder: string | null, index: number) => void;
   appendToPrompt: (text: string) => void;
-  nDragStart: (
+  onDragStart: (
     e: React.DragEvent,
     source: "free" | "folder",
     folder: string | null,
@@ -53,6 +53,7 @@ export default function Sidebar({
 }: SidebarProps) {
   return (
     <aside className="w-full lg:w-80 bg-[#F7ECE1] text-[#242038] flex flex-col p-2">
+      {/* Crear carpeta */}
       <div className="pb-5 border-b border-[#8D86C9]/30">
         <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
           <FolderPlus size={18} className="text-[#9067C6]" /> Carpetas
@@ -73,10 +74,12 @@ export default function Sidebar({
         </div>
       </div>
 
+      {/* Listado de carpetas */}
       <div className="mt-4 flex-1 overflow-auto pr-1 space-y-3">
         {Object.keys(data.folders).length === 0 && (
           <p className="text-sm text-[#242038] italic">Sin carpetas</p>
         )}
+
         {Object.keys(data.folders).map((folder: string) => (
           <FolderItem
             key={folder}
