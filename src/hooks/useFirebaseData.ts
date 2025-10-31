@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast"; 
+import { toast } from "react-hot-toast";
+import { User } from "firebase/auth";
 import {
   ensureUserDoc,
   subscribeUserDoc,
@@ -12,44 +13,53 @@ type DataShape = {
   free: string[];
 };
 
-type User = {
-  uid: string;
-} | null;
-
-export function useFirebaseData(user: User) {
+export function useFirebaseData(user: User | null) {
   const [data, setData] = useState<DataShape>({ folders: {}, free: [] });
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
-  const [newFolder, setNewFolder] = useState("");
-  const [newPhrase, setNewPhrase] = useState("");
-  const [promptText, setPromptText] = useState("");
+  const [newFolder, setNewFolder] = useState<string>("");
+  const [newPhrase, setNewPhrase] = useState<string>("");
+  const [promptText, setPromptText] = useState<string>("");
   const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
   const [editingFolder, setEditingFolder] = useState<string | null>(null);
-  const [editingFolderName, setEditingFolderName] = useState("");
+  const [editingFolderName, setEditingFolderName] = useState<string>("");
 
   // --- 🔹 Inicialización y suscripción a Firestore ---
   useEffect(() => {
     if (!user?.uid) return;
 
+    const uid = user.uid;
     let unsub: (() => void) | undefined;
+
     (async () => {
-      const initial = await ensureUserDoc(user.uid);
-      setData(initial);
-      unsub = subscribeUserDoc(user.uid, setData);
+      try {
+        const initial = await ensureUserDoc(uid);
+        setData(initial);
+        unsub = subscribeUserDoc(uid, setData);
+      } catch (error) {
+        console.error("Error inicializando datos:", error);
+        toast.error("Error al cargar datos");
+      }
     })();
 
-    return () => unsub && unsub();
+    return () => {
+      if (unsub) unsub();
+    };
   }, [user]);
 
   // --- 🔹 Guardar cambios en Firestore ---
-  const saveData = (newData: DataShape) => {
+  const saveData = (newData: DataShape): void => {
+    if (!user?.uid) return;
     setData(newData);
-    saveUserDoc(user.uid, newData);
+    saveUserDoc(user.uid, newData).catch((error) => {
+      console.error("Error guardando datos:", error);
+      toast.error("Error al guardar");
+    });
   };
 
   // --- 🔹 Carpetas ---
-  const addFolder = () => {
+  const addFolder = (): void => {
     if (!newFolder.trim() || data.folders[newFolder]) return;
-    const newData = {
+    const newData: DataShape = {
       ...data,
       folders: { ...data.folders, [newFolder]: [] },
     };
@@ -57,34 +67,34 @@ export function useFirebaseData(user: User) {
     setNewFolder("");
   };
 
-  const deleteFolder = (folder: string) => {
+  const deleteFolder = (folder: string): void => {
     if (!confirm(`¿Seguro que quieres borrar la carpeta "${folder}"?`)) return;
 
-    const newData = { ...data };
+    const newData: DataShape = { ...data };
     delete newData.folders[folder];
     saveData(newData);
 
     toast.success(`Carpeta "${folder}" eliminada`);
-    };
+  };
 
-  const startEditFolder = (folder: string) => {
+  const startEditFolder = (folder: string): void => {
     setEditingFolder(folder);
     setEditingFolderName(folder);
   };
 
-  const cancelEditFolder = () => {
+  const cancelEditFolder = (): void => {
     setEditingFolder(null);
     setEditingFolderName("");
   };
 
-  const saveEditedFolder = () => {
+  const saveEditedFolder = (): void => {
     if (!editingFolder || !editingFolderName.trim()) return;
     if (editingFolderName === editingFolder) {
       setEditingFolder(null);
       return;
     }
 
-    const newData = { ...data };
+    const newData: DataShape = { ...data };
     newData.folders[editingFolderName] = newData.folders[editingFolder];
     delete newData.folders[editingFolder];
     saveData(newData);
@@ -94,15 +104,15 @@ export function useFirebaseData(user: User) {
   };
 
   // --- 🔹 Frases ---
-  const addPhrase = () => {
+  const addPhrase = (): void => {
     if (!newPhrase.trim()) return;
-    const newData = { ...data, free: [...data.free, newPhrase.trim()] };
+    const newData: DataShape = { ...data, free: [...data.free, newPhrase.trim()] };
     saveData(newData);
     setNewPhrase("");
   };
 
-  const deletePhrase = (folder: string | null, index: number) => {
-    const newData = { ...data };
+  const deletePhrase = (folder: string | null, index: number): void => {
+    const newData: DataShape = { ...data };
     if (folder) {
       newData.folders[folder] = newData.folders[folder].filter((_, i) => i !== index);
     } else {
@@ -111,33 +121,38 @@ export function useFirebaseData(user: User) {
     saveData(newData);
   };
 
-  const appendToPrompt = (phrase: string) => {
+  const appendToPrompt = (phrase: string): void => {
     setPromptText((prev) => (prev ? prev + " " + phrase : phrase));
   };
 
   // --- 🔹 Drag & Drop ---
   const onDragStart = (
-    e: React.DragEvent,
+    e: React.DragEvent<Element>,
     source: "free" | "folder",
     folder: string | null,
     index: number
-  ) => {
+  ): void => {
     e.dataTransfer.setData(
       "text/plain",
       JSON.stringify({ source, folder, index })
     );
   };
 
-  const onDropToFolder = (e: React.DragEvent, targetFolder: string) => {
+  const onDropToFolder = (e: React.DragEvent<Element>, targetFolder: string): void => {
     e.preventDefault();
-    const info = JSON.parse(e.dataTransfer.getData("text/plain"));
-    const newData = { ...data };
+    const info = JSON.parse(e.dataTransfer.getData("text/plain")) as {
+      source: "free" | "folder";
+      folder: string | null;
+      index: number;
+    };
+    const newData: DataShape = { ...data };
 
     let phrase = "";
     if (info.source === "free") {
       phrase = newData.free[info.index];
       newData.free.splice(info.index, 1);
     } else {
+      if (!info.folder) return;
       phrase = newData.folders[info.folder][info.index];
       newData.folders[info.folder].splice(info.index, 1);
     }
@@ -149,15 +164,19 @@ export function useFirebaseData(user: User) {
     saveData(newData);
   };
 
-  const onDropToFree = (e: React.DragEvent) => {
+  const onDropToFree = (e: React.DragEvent<Element>): void => {
     e.preventDefault();
-    const info = JSON.parse(e.dataTransfer.getData("text/plain"));
-    const newData = { ...data };
+    const info = JSON.parse(e.dataTransfer.getData("text/plain")) as {
+      source: "free" | "folder";
+      folder: string | null;
+      index: number;
+    };
+    const newData: DataShape = { ...data };
 
-    let phrase = "";
     if (info.source === "free") return; // ya está en free
 
-    phrase = newData.folders[info.folder][info.index];
+    if (!info.folder) return;
+    const phrase = newData.folders[info.folder][info.index];
     newData.folders[info.folder].splice(info.index, 1);
     newData.free.push(phrase);
 

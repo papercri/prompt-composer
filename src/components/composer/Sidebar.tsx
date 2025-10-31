@@ -1,6 +1,7 @@
 import { FolderPlus } from "lucide-react";
 import FolderItem from "./FolderItem";
 
+
 interface SidebarProps {
   data: { folders: Record<string, string[]> };
   newFolder: string;
@@ -12,12 +13,12 @@ interface SidebarProps {
   deletePhrase: (folder: string | null, index: number) => void;
   appendToPrompt: (text: string) => void;
   onDragStart: (
-    e: React.DragEvent,
+    e: React.DragEvent<Element>,
     source: "free" | "folder",
     folder: string | null,
     index: number
   ) => void;
-  onDropToFolder: (e: React.DragEvent, folder: string) => void;
+  onDropToFolder: (e: React.DragEvent<Element>, folder: string) => void;
   dragOverFolder: string | null;
   setDragOverFolder: React.Dispatch<React.SetStateAction<string | null>>;
   editingFolder: string | null;
@@ -28,7 +29,6 @@ interface SidebarProps {
   startEditFolder: (folder: string) => void;
   cancelEditFolder: () => void;
 }
-
 
 export default function Sidebar({
   data,
@@ -52,6 +52,7 @@ export default function Sidebar({
   startEditFolder,
   cancelEditFolder,
 }: SidebarProps) {
+
   return (
     <aside className="w-full lg:w-80 bg-[#F7ECE1] text-[#242038] flex flex-col p-2">
       {/* Crear carpeta */}
