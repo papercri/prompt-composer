@@ -1,7 +1,6 @@
 import { FolderPlus } from "lucide-react";
 import FolderItem from "./FolderItem";
 
-
 interface SidebarProps {
   data: { folders: Record<string, string[]> };
   newFolder: string;

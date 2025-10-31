@@ -2,23 +2,25 @@ import { Folder, FolderOpen, Edit3, Trash2, Check } from "lucide-react";
 
 interface FolderItemProps {
   folder: string;
-  data: {
-    folders: {
-      [key: string]: string[];
-    };
-  };
-  openFolders: { [key: string]: boolean };
-  setOpenFolders: React.Dispatch<React.SetStateAction<{ [key: string]: boolean }>>;
+  data: { folders: Record<string, string[]> };
+  openFolders: Record<string, boolean>;
+  setOpenFolders: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   deleteFolder: (folder: string) => void;
-  deletePhrase: (folder: string, index: number) => void;
-  appendToPrompt: (phrase: string) => void;
-  onDragStart: (e: React.DragEvent, type: string, folder: string, index: number) => void;
-  onDropToFolder: (e: React.DragEvent, folder: string) => void;
+  deletePhrase: (folder: string | null, index: number) => void;
+  appendToPrompt: (text: string) => void;
+  onDragStart: (
+    e: React.DragEvent<Element>,
+    source: "free" | "folder",
+    folder: string | null,
+    index: number
+  ) => void;
+  onDropToFolder: (e: React.DragEvent<Element>, folder: string) => void;
   dragOverFolder: string | null;
-  setDragOverFolder: (folder: string | null) => void;
+  setDragOverFolder: React.Dispatch<React.SetStateAction<string | null>>;
   editingFolder: string | null;
+  setEditingFolder: React.Dispatch<React.SetStateAction<string | null>>;
   editingFolderName: string;
-  setEditingFolderName: (name: string) => void;
+  setEditingFolderName: React.Dispatch<React.SetStateAction<string>>;
   saveEditedFolder: () => void;
   startEditFolder: (folder: string) => void;
   cancelEditFolder: () => void;
