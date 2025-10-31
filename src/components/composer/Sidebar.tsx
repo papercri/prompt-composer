@@ -11,7 +11,12 @@ interface SidebarProps {
   deleteFolder: (folder: string) => void;
   deletePhrase: (folder: string | null, index: number) => void;
   appendToPrompt: (text: string) => void;
-  onDragStart: (e: React.DragEvent, folder: string, phrase: string) => void;
+  nDragStart: (
+    e: React.DragEvent,
+    source: "free" | "folder",
+    folder: string | null,
+    index: number
+  ) => void;
   onDropToFolder: (e: React.DragEvent, folder: string) => void;
   dragOverFolder: string | null;
   setDragOverFolder: (folder: string | null) => void;

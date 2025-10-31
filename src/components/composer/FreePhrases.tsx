@@ -6,7 +6,12 @@ interface FreePhrasesProps {
   setNewPhrase: (value: string) => void;
   addPhrase: () => void;
   deletePhrase: (category: null, index: number) => void;
-  onDragStart: (e: React.DragEvent, type: string, category: null, index: number) => void;
+   onDragStart: (
+    e: React.DragEvent,
+    source: "free" | "folder",
+    folder: string | null,
+    index: number
+  ) => void;
   onDropToFree: (e: React.DragEvent) => void;
   appendToPrompt: (phrase: string) => void;
 }
