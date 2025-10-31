@@ -4,10 +4,10 @@ import FolderItem from "./FolderItem";
 interface SidebarProps {
   data: { folders: Record<string, string[]> };
   newFolder: string;
-  setNewFolder: (value: string) => void;
+  setNewFolder: React.Dispatch<React.SetStateAction<string>>;
   addFolder: () => void;
   openFolders: Record<string, boolean>;
-  setOpenFolders: (folders: Record<string, boolean>) => void;
+  setOpenFolders: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   deleteFolder: (folder: string) => void;
   deletePhrase: (folder: string | null, index: number) => void;
   appendToPrompt: (text: string) => void;
@@ -19,15 +19,16 @@ interface SidebarProps {
   ) => void;
   onDropToFolder: (e: React.DragEvent, folder: string) => void;
   dragOverFolder: string | null;
-  setDragOverFolder: (folder: string | null) => void;
+  setDragOverFolder: React.Dispatch<React.SetStateAction<string | null>>;
   editingFolder: string | null;
-  setEditingFolder: (folder: string | null) => void;
+  setEditingFolder: React.Dispatch<React.SetStateAction<string | null>>;
   editingFolderName: string;
-  setEditingFolderName: (name: string) => void;
+  setEditingFolderName: React.Dispatch<React.SetStateAction<string>>;
   saveEditedFolder: () => void;
   startEditFolder: (folder: string) => void;
   cancelEditFolder: () => void;
 }
+
 
 export default function Sidebar({
   data,
