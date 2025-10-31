@@ -9,7 +9,7 @@ interface SidebarProps {
   openFolders: Record<string, boolean>;
   setOpenFolders: (folders: Record<string, boolean>) => void;
   deleteFolder: (folder: string) => void;
-  deletePhrase: (folder: string, phrase: string) => void;
+  deletePhrase: (folder: string | null, index: number) => void;
   appendToPrompt: (text: string) => void;
   onDragStart: (e: React.DragEvent, folder: string, phrase: string) => void;
   onDropToFolder: (e: React.DragEvent, folder: string) => void;
