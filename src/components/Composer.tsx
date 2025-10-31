@@ -7,7 +7,8 @@ import {
 } from "@/lib/firebaseActions";
 import { Clipboard, Trash2, FolderPlus, FilePlus } from "lucide-react";
 import { User } from "firebase/auth";
-import { Folder, FolderOpen } from "lucide-react";
+import { Folder, FolderOpen, Edit3, Check } from "lucide-react";
+
 
 type DataShape = {
   folders: Record<string, string[]>;
@@ -16,10 +17,14 @@ type DataShape = {
 
 export default function Composer({ user }: { user: User }) {
   const [data, setData] = useState<DataShape>({ folders: {}, free: [] });
+  const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
   const [newPhrase, setNewPhrase] = useState("");
   const [newFolder, setNewFolder] = useState("");
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
   const [promptText, setPromptText] = useState("");
+  const [editingFolder, setEditingFolder] = useState<string | null>(null);
+  const [editingFolderName, setEditingFolderName] = useState<string>("");
+
  useEffect(() => {
     if (!user?.uid) return;
     const uid = user.uid; // Capturamos el uid como string
@@ -118,6 +123,8 @@ export default function Composer({ user }: { user: User }) {
     }
     updated.folders[targetFolder] = [...updated.folders[targetFolder], item];
     save(updated);
+    // al final, limpiar el highlight
+    setDragOverFolder(null);
   };
 
   const onDropToFree = (e: React.DragEvent) => {
@@ -192,96 +199,203 @@ export default function Composer({ user }: { user: User }) {
     alert(`No se pudo copiar: ${err instanceof Error ? err.message : 'Error desconocido'}`);
   }
 };
+const startEditFolder = (folder: string) => {
+  setEditingFolder(folder);
+  setEditingFolderName(folder);
+};
+
+const cancelEditFolder = () => {
+  setEditingFolder(null);
+  setEditingFolderName("");
+};
+
+const saveEditedFolder = () => {
+  if (!editingFolder) return;
+  const oldName = editingFolder;
+  const newName = editingFolderName.trim();
+  if (!newName) {
+    // opcional: mostrar toast o feedback
+    return;
+  }
+  if (newName === oldName) {
+    cancelEditFolder();
+    return;
+  }
+  // evitar duplicados
+  if (data.folders[newName]) {
+    // opcional: mostrar mensaje "ya existe"
+    return;
+  }
+
+  // construir nuevo objeto folders renombrando la clave
+  const newFolders: Record<string, string[]> = {};
+  Object.keys(data.folders).forEach((k) => {
+    if (k === oldName) {
+      newFolders[newName] = data.folders[oldName];
+    } else {
+      newFolders[k] = data.folders[k];
+    }
+  });
+
+  // actualizar openFolders: mantener estado abierto/cerrado
+  const newOpenFolders: Record<string, boolean> = {};
+  Object.keys(openFolders).forEach((k) => {
+    if (k === oldName) {
+      newOpenFolders[newName] = openFolders[oldName];
+    } else {
+      newOpenFolders[k] = openFolders[k];
+    }
+  });
+
+  // actualizar data y openFolders
+  setData((prev) => ({ ...prev, folders: newFolders }));
+  setOpenFolders(newOpenFolders);
+
+  // limpiar estado de edición
+  setEditingFolder(null);
+  setEditingFolderName("");
+};
 
 
   const clearPrompt = () => setPromptText("");
 
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 p-4 max-h-screen bg-gradient-to-br from-slate-50 via-white to-sky-50">
-    {/* SIDEBAR */}
-      <aside className="w-full lg:w-72 bg-gradient-to-br from-white to-slate-50 rounded-2xl shadow-xl border border-slate-200/70 p-5 flex flex-col transition-all duration-300">
-        {/* Add folder */}
-        <div className="pb-4 border-b border-slate-200">
-          <h2 className="text-slate-800 font-semibold mb-3 flex items-center gap-2">
-            <FolderPlus className="text-sky-600" size={18} />
+    <div className="flex flex-col lg:flex-row  text-[#242038] justify-stretch">
+      {/* SIDEBAR */}
+      <aside className="w-full lg:w-80 bg-[#F7ECE1] text-[#242038] flex flex-col p-2">
+        {/* Crear carpeta */}
+        <div className="pb-5 border-b border-[#8D86C9]/30">
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <FolderPlus size={18} className="text-[#9067C6]" />
             Carpetas
           </h2>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <input
               value={newFolder}
               onChange={(e) => setNewFolder(e.target.value)}
               placeholder="Nueva carpeta"
-              className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-all"
+              className="flex-1 px-3 py-2 rounded-lg text-sm text-[#242038] border border-[#CAC4CE] focus:ring-2 focus:ring-[#9067C6] outline-none"
             />
             <button
               onClick={addFolder}
-              className="bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-700 hover:to-sky-600 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-1 transition-all"
+              className="bg-[#9067C6] hover:bg-[#8D86C9] text-white px-3 py-2 rounded-lg flex items-center gap-1 transition-all text-sm font-medium"
             >
               <FolderPlus size={16} /> Crear
             </button>
           </div>
         </div>
 
-        {/* Folder list */}
+        {/* Lista de carpetas */}
         <div className="mt-4 flex-1 overflow-auto pr-1">
+          {Object.keys(data.folders).length === 0 && (
+            <p className="text-sm text-[#242038] italic">Sin carpetas</p>
+          )}
           <div className="space-y-3">
-            {Object.keys(data.folders).length === 0 && (
-              <p className="text-sm text-slate-500 italic">Sin carpetas</p>
-            )}
             {Object.keys(data.folders).map((folder) => (
               <div
                 key={folder}
-                className="border border-slate-200 rounded-xl overflow-hidden bg-gradient-to-br from-white to-slate-50 shadow-sm hover:shadow-md transition-shadow"
+                className={`border border-[#CAC4CE] rounded-xl overflow-hidden shadow-sm transition-all ${
+                  dragOverFolder === folder ? "bg-[#CAC4CE]/50" : "bg-[#8D86C9]/10"
+                }`}
+                onDragOver={(e) => e.preventDefault()}
+                onDragEnter={() => setDragOverFolder(folder)}
+                onDragLeave={() => setDragOverFolder(null)}
+                onDrop={() => handleDrop(folder)}
               >
+                {/* HEADER DE CARPETA */}
                 <div
-                  onClick={() => toggleFolder(folder)}
-                  onDragOver={onDragOver}
-                  onDrop={(e) => onDropToFolder(e, folder)}
-                  className="flex justify-between items-center px-3 py-2 hover:bg-slate-50 cursor-pointer"
+                  onClick={() =>
+                    setOpenFolders((prev) => ({ ...prev, [folder]: !prev[folder] }))
+                  }
+                  className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-[#8D86C9]/20 transition-all"
                 >
+                  {/* Nombre o campo de edición */}
                   <div className="flex items-center gap-2">
-                    {openFolders[folder] ? (
-                      <FolderOpen className="text-sky-600" size={18} />
-                    ) : (
-                      <Folder className="text-slate-400" size={18} />
-                    )}
-                    <span className="font-medium text-slate-700">{folder}</span>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteFolder(folder);
-                    }}
-                    className="text-rose-500 hover:text-rose-600 transition-colors"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-
-                {openFolders[folder] && (
-                  <div className="px-3 pb-3 flex flex-wrap gap-2 transition-all duration-300">
-                    {data.folders[folder].map((p, i) => (
-                      <div
-                        key={i}
-                        onDoubleClick={() => appendToPrompt(p)}
-                        draggable
-                        onDragStart={(e) => onDragStart(e, "folder", folder, i)}
-                        className="relative bg-white border border-slate-200 shadow-sm rounded-lg px-3 py-1 text-sm whitespace-pre-wrap cursor-pointer hover:shadow-md hover:border-sky-300 transition-all"
-                      >
-                        {p}
+                    {editingFolder === folder ? (
+                      <>
+                        <input
+                          value={editingFolderName}
+                          onChange={(e) => setEditingFolderName(e.target.value)}
+                          className="px-2 py-1 text-sm border border-[#CAC4CE] rounded-md focus:ring-2 focus:ring-[#9067C6] outline-none w-36"
+                        />
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            deletePhrase(folder, i);
+                            saveEditedFolder();
                           }}
-                          className="absolute -top-1.5 -right-1.5 text-xs bg-white border border-slate-200 rounded-full text-rose-500 w-5 h-5 flex items-center justify-center shadow-sm hover:bg-rose-50"
+                          className="text-green-600 hover:text-green-700 text-sm font-medium"
+                          title="Guardar"
+                        >
+                          <Check className="text-green-600 font-bold" size={18} />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            cancelEditFolder();
+                          }}
+                          className="text-rose-500 hover:text-rose-600 text-sm font-bold"
+                          title="Cancelar"
                         >
                           ✕
                         </button>
-                      </div>
-                    ))}
+                      </>
+                    ) : (
+                      <>
+                        {openFolders[folder] ? (
+                          <FolderOpen className="text-[#9067C6]" size={18} />
+                        ) : (
+                          <Folder className="text-[#242038]" size={18} />
+                        )}
+                        <span className="font-medium text-[#242038]">{folder}</span>
+                      </>
+                    )}
                   </div>
+
+                  {/* Botones de acción */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startEditFolder(folder); // 🔧 corregido
+                      }}
+                      className="text-[#8D86C9] hover:text-[#9067C6] flex items-center gap-1 text-sm font-medium"
+                      title="Modificar carpeta"
+                    >
+                      <Edit3 size={16} />
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteFolder(folder);
+                      }}
+                      className="text-red-500 hover:text-red-600 flex items-center gap-1 text-sm font-medium"
+                      title="Eliminar carpeta"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* CONTENIDO DE LA CARPETA */}
+                {openFolders[folder] && (
+                  <ul className="bg-[#F7ECE1] p-2 space-y-1">
+                    {data.folders[folder].length > 0 ? (
+                      data.folders[folder].map((phrase, index) => (
+                        <li
+                          key={index}
+                          className="text-sm p-2 bg-white rounded-md shadow-sm border border-[#CAC4CE] hover:bg-[#8D86C9]/10 transition-all"
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, phrase)}
+                        >
+                          {phrase}
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-xs italic text-[#8D86C9]">Sin frases</li>
+                    )}
+                  </ul>
                 )}
               </div>
             ))}
@@ -290,25 +404,26 @@ export default function Composer({ user }: { user: User }) {
       </aside>
 
       {/* MAIN */}
-      <main className="flex-1 p-2 flex flex-col gap-4 overflow-auto">
+      <main className="flex-1 flex flex-col gap-4 p-5 overflow-hidden">
         {/* Frases libres */}
         <section
-          className="bg-gradient-to-br from-white to-slate-50 rounded-2xl shadow-xl border border-slate-200 p-5 transition-all"
+          className="bg-white border border-[#CAC4CE] rounded-2xl shadow-lg p-5 flex flex-col"
           onDragOver={onDragOver}
           onDrop={onDropToFree}
         >
-          <h2 className="text-slate-800 font-semibold mb-3 flex items-center gap-2">
-            <FilePlus className="text-emerald-600" size={18} /> Frases libres
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2 text-[#242038]">
+            <FilePlus size={18} className="text-[#9067C6]" />
+            Frases libres
           </h2>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-5">
             {data.free.map((p, i) => (
               <div
                 key={i}
                 draggable
                 onDragStart={(e) => onDragStart(e, "free", null, i)}
                 onDoubleClick={() => appendToPrompt(p)}
-                className="relative bg-white border border-slate-200 shadow-sm rounded-lg px-3 py-1 text-sm whitespace-pre-wrap cursor-move hover:shadow-md hover:border-emerald-300 transition-all"
+                className="relative bg-[#F7ECE1] border border-[#CAC4CE] rounded-lg px-3 py-1 text-sm cursor-move hover:shadow-md transition-all"
               >
                 {p}
                 <button
@@ -316,7 +431,7 @@ export default function Composer({ user }: { user: User }) {
                     e.stopPropagation();
                     deletePhrase(null, i);
                   }}
-                  className="absolute -top-1.5 -right-1.5 text-xs bg-white border border-slate-200 rounded-full text-rose-500 w-5 h-5 flex items-center justify-center shadow-sm hover:bg-rose-50"
+                  className="absolute -top-1.5 -right-1.5 text-xs bg-white border border-[#CAC4CE] rounded-full text-rose-500 w-5 h-5 flex items-center justify-center shadow-sm hover:bg-rose-50"
                 >
                   ✕
                 </button>
@@ -325,45 +440,41 @@ export default function Composer({ user }: { user: User }) {
           </div>
 
           {/* Añadir frase */}
-          <div className="mt-5 border-t border-slate-200 pt-4">
-            <label className="text-sm text-slate-600 mb-2 block">
-              Nueva frase (puede tener saltos de línea)
-            </label>
-            <div className="flex gap-3">
-              <textarea
-                rows={3}
-                value={newPhrase}
-                onChange={(e) => setNewPhrase(e.target.value)}
-                placeholder="Escribe tu frase..."
-                className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
-              />
-              <button
-                onClick={addPhrase}
-                className="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white px-4 py-2 rounded-lg flex items-center gap-1 font-medium shadow-sm transition-all"
-              >
-                <FilePlus size={16} /> Guardar
-              </button>
-            </div>
+          <div className="border-t border-[#CAC4CE] pt-4 flex flex-col gap-3">
+            <label className="text-sm text-[#242038]/80">Nueva frase:</label>
+            <textarea
+              rows={3}
+              value={newPhrase}
+              onChange={(e) => setNewPhrase(e.target.value)}
+              placeholder="Escribe tu frase..."
+              className="w-full border border-[#CAC4CE] rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-[#9067C6] outline-none"
+            />
+            <button
+              onClick={addPhrase}
+              className="self-start bg-[#9067C6] hover:bg-[#8D86C9] text-white px-4 py-2 rounded-lg flex items-center gap-1 font-medium shadow-sm transition-all"
+            >
+              <FilePlus size={16} /> Guardar
+            </button>
           </div>
         </section>
 
-        {/* Prompt builder */}
-        <section className="bg-gradient-to-br from-white to-slate-50 rounded-2xl shadow-xl border border-slate-200 p-5">
+        {/* Prompt generado */}
+        <section className="bg-white border border-[#CAC4CE] rounded-2xl shadow-lg p-5 flex flex-col flex-1">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="text-lg font-semibold text-slate-700 flex items-center gap-2">
-              <Clipboard className="text-emerald-600" size={18} />
+            <h3 className="text-lg font-semibold flex items-center gap-2 text-[#242038]">
+              <Clipboard className="text-[#9067C6]" size={18} />
               Prompt generado
             </h3>
             <div className="flex gap-2">
               <button
                 onClick={copyPrompt}
-                className="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white px-3 py-1.5 rounded-md flex items-center gap-1 text-sm font-medium shadow-sm transition-all"
+                className="bg-[#9067C6] hover:bg-[#8D86C9] text-white px-3 py-1.5 rounded-md flex items-center gap-1 text-sm font-medium shadow-sm transition-all"
               >
                 <Clipboard size={16} /> Copiar
               </button>
               <button
                 onClick={clearPrompt}
-                className="bg-gradient-to-r from-rose-500 to-rose-400 hover:from-rose-600 hover:to-rose-500 text-white px-3 py-1.5 rounded-md text-sm font-medium shadow-sm transition-all"
+                className="bg-rose-500 hover:bg-rose-600 text-white px-3 py-1.5 rounded-md flex items-center gap-1 text-sm font-medium shadow-sm transition-all"
               >
                 <Trash2 size={16} /> Borrar
               </button>
@@ -371,15 +482,16 @@ export default function Composer({ user }: { user: User }) {
           </div>
 
           <textarea
-            rows={8}
+           // rows={12}
             value={promptText}
             onChange={(e) => setPromptText(e.target.value)}
             placeholder="Doble clic en frases o escribe manualmente..."
-            className="w-full border border-slate-300 rounded-lg p-3 text-sm font-mono resize-vertical focus:ring-2 focus:ring-sky-400 outline-none transition-all bg-white"
+            className="w-full flex-1 border border-[#CAC4CE] rounded-lg p-3 text-sm font-mono resize-none focus:ring-2 focus:ring-[#9067C6] outline-none bg-[#F7ECE1]"
           />
         </section>
       </main>
     </div>
+
 
   );
 }
