@@ -55,7 +55,7 @@ export default function FolderItem({
     >
       <div
         onClick={() =>
-          setOpenFolders((prev: { [key: string]: boolean }) => ({ ...prev, [folder]: !prev[folder] }))
+          setOpenFolders((prev) => ({ ...prev, [folder]: !prev[folder] }))
         }
         className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-[#8D86C9]/20 transition-all"
       >
@@ -93,7 +93,13 @@ export default function FolderItem({
               ) : (
                 <Folder className="text-[#242038]" size={18} />
               )}
-              <span className="font-medium text-[#242038]">{folder}</span>
+
+              <span className="font-medium text-[#242038]">
+                {folder}
+                <span className="text-xs text-[#8D86C9] ml-1">
+                  ({data.folders[folder].length})
+                </span>
+              </span>
             </>
           )}
         </div>
@@ -125,7 +131,7 @@ export default function FolderItem({
       {openFolders[folder] && (
         <div className="px-3 pb-3 flex flex-wrap gap-2">
           {data.folders[folder].length > 0 ? (
-            data.folders[folder].map((phrase: string, index: number) => (
+            data.folders[folder].map((phrase, index) => (
               <div
                 key={index}
                 onDoubleClick={() => appendToPrompt(phrase)}

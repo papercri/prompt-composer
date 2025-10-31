@@ -51,6 +51,7 @@ export default function FreePhrases({
             >
               ✕
             </button>
+            
           </div>
         ))}
       </div>
