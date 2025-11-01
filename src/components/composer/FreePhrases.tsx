@@ -1,4 +1,5 @@
 import { FilePlus } from "lucide-react";
+import DOMPurify from "dompurify";
 
 interface FreePhrasesProps {
   data: { free: string[] };
@@ -74,7 +75,15 @@ export default function FreePhrases({
           className="w-full border border-[#CAC4CE] rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-[#9067C6] outline-none"
         />
         <button
-          onClick={addPhrase}
+          onClick={() => {
+            const cleanPhrase = DOMPurify.sanitize(newPhrase.trim());
+            if (cleanPhrase) {
+              setNewPhrase(cleanPhrase);
+              addPhrase();
+            } else {
+              alert("La frase está vacía o contiene contenido no permitido.");
+            }
+          }}
           className="self-start bg-[#9067C6] hover:bg-[#8D86C9] text-white px-4 py-2 rounded-lg flex items-center gap-1 font-medium shadow-sm transition-all"
         >
           <FilePlus size={16} /> Guardar
