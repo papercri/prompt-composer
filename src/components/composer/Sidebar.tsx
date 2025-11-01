@@ -53,9 +53,9 @@ export default function Sidebar({
 }: SidebarProps) {
 
   return (
-    <aside className="w-full lg:w-80 bg-[#F7ECE1] text-[#242038] flex flex-col p-2">
+    <aside className="w-full sm:w-80 lg:w-120 bg-[#F7ECE1] text-[#242038] flex flex-col p-2">
       {/* Crear carpeta */}
-      <div className="pb-5 border-b border-[#8D86C9]/30">
+      <div className="pb-1">
         <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
           <FolderPlus size={18} className="text-[#9067C6]" /> Carpetas
         </h2>
@@ -76,7 +76,7 @@ export default function Sidebar({
       </div>
 
       {/* Listado de carpetas */}
-      <div className="mt-4 flex-1 overflow-auto pr-1 space-y-3">
+      <div className="mt-2 flex-1 overflow-auto pr-1 space-y-2">
         {Object.keys(data.folders).length === 0 && (
           <p className="text-sm text-[#242038] italic">Sin carpetas</p>
         )}

@@ -40,7 +40,7 @@ export default function Composer({ user }: { user: User }) {
   const { copyPrompt, clearPrompt } = usePromptActions(promptText, setPromptText);
 
   return (
-    <div className="flex flex-col lg:flex-row text-[#242038] justify-stretch">
+    <div className="flex flex-col sm:flex-row text-[#242038] justify-stretch">
       <Sidebar
         data={data}
         newFolder={newFolder}
@@ -64,7 +64,7 @@ export default function Composer({ user }: { user: User }) {
         cancelEditFolder={cancelEditFolder}
       />
 
-      <main className="flex-1 flex flex-col gap-4 p-5 overflow-hidden">
+      <div className="flex-1 flex flex-col gap-4 p-5 overflow-hidden">
         <FreePhrases
           data={data}
           newPhrase={newPhrase}
@@ -82,7 +82,7 @@ export default function Composer({ user }: { user: User }) {
           copyPrompt={copyPrompt}
           clearPrompt={clearPrompt}
         />
-      </main>
+      </div>
     </div>
   );
 }

@@ -28,16 +28,16 @@ export default function FreePhrases({
 }: FreePhrasesProps) {
   return (
     <section
-      className="bg-white border border-[#CAC4CE] rounded-2xl shadow-lg p-5 flex flex-col"
+      className="bg-white border border-[#CAC4CE] rounded-lg shadow-lg p-3 flex flex-col"
       onDragOver={(e) => e.preventDefault()}
       onDrop={onDropToFree}
     >
-      <h2 className="text-lg font-semibold mb-3 flex items-center gap-2 text-[#242038]">
+      <h2 className="text-lg font-semibold mb-2 flex items-center gap-2 text-[#242038]">
         <FilePlus size={18} className="text-[#9067C6]" />
         Frases libres
       </h2>
 
-      <div className="flex flex-wrap gap-2 mb-5">
+      <div className="flex flex-wrap gap-2 mb-3">
         {data.free.map((p: string, i: number) => (
           <div
             key={i}
@@ -50,9 +50,12 @@ export default function FreePhrases({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                deletePhrase(null, i);
+                const confirmed = window.confirm("¿Seguro que quieres eliminar esta frase?");
+                if (confirmed) {
+                    deletePhrase(null, i);
+                }
               }}
-              className="absolute -top-1.5 -right-1.5 text-xs bg-white border border-[#CAC4CE] rounded-full text-rose-500 w-5 h-5 flex items-center justify-center shadow-sm hover:bg-rose-50"
+              className="absolute -top-1.5 -right-1.5 text-xs bg-white border border-[#CAC4CE] rounded-full text-rose-500 w-5 h-5 flex items-center justify-center shadow-sm  hover:bg-rose-500 hover:text-white transition-all"
             >
               ✕
             </button>
@@ -61,8 +64,8 @@ export default function FreePhrases({
         ))}
       </div>
 
-      <div className="border-t border-[#CAC4CE] pt-4 flex flex-col gap-3">
-        <label className="text-sm text-[#242038]/80">Nueva frase:</label>
+      <div className=" pt-2 flex flex-col gap-2">
+        <label className="text-sm text-[#242038]/80 font-bold">Nueva frase:</label>
         <textarea
           rows={3}
           value={newPhrase}

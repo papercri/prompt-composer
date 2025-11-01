@@ -14,7 +14,7 @@ export default function PromptSection({
   clearPrompt,
 }: PromptSectionProps) {
   return (
-    <section className="bg-white border border-[#CAC4CE] rounded-2xl shadow-lg p-5 flex flex-col flex-1 max-h-[350px]">
+    <section className="bg-white border border-[#CAC4CE] rounded-lg shadow-lg p-3 flex flex-col flex-1 max-h-[350px]">
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-lg font-semibold flex items-center gap-2 text-[#242038]">
           <Clipboard className="text-[#9067C6]" size={18} />
@@ -37,6 +37,7 @@ export default function PromptSection({
       </div>
 
       <textarea
+        rows={6}
         value={promptText}
         onChange={(e) => setPromptText(e.target.value)}
         placeholder="Doble clic en frases o escribe manualmente..."

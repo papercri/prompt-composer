@@ -47,7 +47,7 @@ export default function FolderItem({
 }: FolderItemProps) {
   return (
     <div
-      className={`border border-[#CAC4CE] rounded-xl overflow-hidden shadow-sm transition-all ${
+      className={`border border-[#CAC4CE] rounded-lg overflow-hidden shadow-sm transition-all ${
         dragOverFolder === folder ? "bg-[#CAC4CE]/50" : "bg-[#8D86C9]/10"
       }`}
       onDragOver={(e) => e.preventDefault()}
@@ -59,7 +59,7 @@ export default function FolderItem({
         onClick={() =>
           setOpenFolders((prev) => ({ ...prev, [folder]: !prev[folder] }))
         }
-        className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-[#8D86C9]/20 transition-all"
+        className="flex items-center justify-between px-3 py-1 cursor-pointer hover:bg-[#8D86C9]/20 transition-all"
       >
         <div className="flex items-center gap-2">
           {editingFolder === folder ? (
@@ -131,7 +131,7 @@ export default function FolderItem({
       </div>
 
       {openFolders[folder] && (
-        <div className="px-3 pb-3 flex flex-wrap gap-2">
+        <div className="px-2 py-2 flex flex-wrap gap-x-3 gap-y-1">
           {data.folders[folder].length > 0 ? (
             data.folders[folder].map((phrase, index) => (
               <div
@@ -139,15 +139,19 @@ export default function FolderItem({
                 onDoubleClick={() => appendToPrompt(phrase)}
                 draggable
                 onDragStart={(e) => onDragStart(e, "folder", folder, index)}
-                className="relative bg-white border border-[#CAC4CE] rounded-lg px-3 py-1 text-sm cursor-pointer hover:shadow-md transition-all"
+                className="relative bg-white border border-[#CAC4CE] rounded-lg px-2 py-1 text-xs cursor-pointer hover:shadow-md transition-all"
               >
                 {phrase}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    deletePhrase(folder, index);
+                    const confirmed = window.confirm("¿Seguro que quieres eliminar esta frase?");
+                    if (confirmed) {
+                      deletePhrase(folder, index);
+                    }
                   }}
-                  className="absolute -top-1.5 -right-1.5 text-xs bg-white border border-[#CAC4CE] rounded-full text-rose-500 w-5 h-5 flex items-center justify-center shadow-sm hover:bg-rose-50"
+                  className="absolute -top-1.5 -right-2.5 text-xs bg-white border border-[#CAC4CE] rounded-full text-rose-500 w-5 h-5 flex items-center justify-center shadow-sm hover:bg-rose-500 hover:text-white transition-all"
+                  title="Eliminar frase"
                 >
                   ✕
                 </button>
