@@ -28,7 +28,7 @@ export default function LoginScreen() {
 
           <button
             onClick={signInWithGithub}
-            className="flex items-center justify-center gap-2 bg-white   text-[#242038]  hover:bg-[#F7ECE1] px-4 py-2.5 rounded-xl font-medium shadow-md transition-all"
+            className="flex items-center justify-center gap-2 bg-white   text-[#242038]  hover:bg-[#F7ECE1] px-4 py-2.5 rounded-xl font-medium shadow-md transition-all hidden"
           >
             <img
               src="/github.svg"
