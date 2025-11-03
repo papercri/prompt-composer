@@ -20,10 +20,10 @@ export default function InfoModal({
         >
           <X size={18} />
         </button>
-        <h2 className="text-xl font-semibold text-[#242038] mb-3 flex items-center gap-2">
-          <Info size={20} className="text-[#9067C6]" /> Cómo funciona
+        <h2 className="text-xl font-semibold text-(--foreground) mb-3 flex items-center gap-2">
+          <Info size={20} className="text-(--primary)" /> Cómo funciona
         </h2>
-        <p className="text-sm text-slate-600 leading-relaxed">
+        <div className="text-sm text-slate-600 leading-relaxed">
           <strong>Prompt Composer</strong> te permite crear, organizar y
           combinar frases para generar prompts personalizados para tus
           proyectos de IA.
@@ -37,11 +37,11 @@ export default function InfoModal({
 
           </ul>
    
-        </p>
+        </div>
         <div className="mt-5 text-right">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-[#9067C6] hover:bg-[#4C3B73] text-white rounded-md text-sm font-medium transition-colors"
+            className="px-4 py-2 bg-(--primary) hover:bg-(--secondary) text-white rounded-md text-sm font-medium transition-colors"
           >
             Entendido
           </button>

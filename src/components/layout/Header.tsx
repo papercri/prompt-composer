@@ -12,7 +12,7 @@ export default function Header({
   onShowInfo: () => void;
 }) {
   return (
-    <header className="fixed top-0 left-0 right-0 bg-gradient-to-r from-[#242038] via-[#4C3B73] to-[#9067C6] shadow-lg p-3 md:p-4  z-50">
+    <header className="fixed top-0 left-0 right-0 bg-linear-to-r from-(--foreground) via-(--secondary) to-(--primary) shadow-lg p-3 md:p-4  z-50">
       <div className="flex-1 flex  w-full overflow-auto max-w-[1400px] mx-auto   justify-between items-center">
         <div className="font-bold text-white text-lg md:text-xl tracking-tight">
           Prompt Composer
@@ -20,7 +20,7 @@ export default function Header({
         <div className="flex items-center gap-3">
           <button
             onClick={onShowInfo}
-            className="text-white hover:text-[#D4BEE4] transition-colors"
+            className="text-white hover:text-(--rose) transition-colors"
             title="Cómo funciona"
           >
             <Info size={20} />

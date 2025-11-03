@@ -29,12 +29,12 @@ export default function FreePhrases({
 }: FreePhrasesProps) {
   return (
     <section
-      className="bg-white border border-[#CAC4CE] rounded-lg shadow-lg p-3 flex flex-col"
+      className="bg-white border border-(--border) rounded-lg shadow-lg p-3 flex flex-col"
       onDragOver={(e) => e.preventDefault()}
       onDrop={onDropToFree}
     >
-      <h2 className="text-lg font-semibold mb-2 flex items-center gap-2 text-[#242038]">
-        <FilePlus size={18} className="text-[#9067C6]" />
+      <h2 className="text-lg font-semibold mb-2 flex items-center gap-2 text-(--foreground)">
+        <FilePlus size={18} className="text-(--primary)" />
         Frases libres
       </h2>
 
@@ -45,7 +45,7 @@ export default function FreePhrases({
             draggable
             onDragStart={(e) => onDragStart(e, "free", null, i)}
             onDoubleClick={() => appendToPrompt(p)}
-            className="relative bg-[#F7ECE1] border border-[#CAC4CE] rounded-lg px-3 py-1 text-sm cursor-move hover:shadow-md transition-all"
+            className="relative bg-(--light) border border-(--border) rounded-lg px-3 py-1 text-sm cursor-move hover:shadow-md transition-all"
           >
             {p}
             <button
@@ -56,7 +56,7 @@ export default function FreePhrases({
                     deletePhrase(null, i);
                 }
               }}
-              className="absolute -top-1.5 -right-1.5 text-xs bg-white border border-[#CAC4CE] rounded-full text-rose-500 w-5 h-5 flex items-center justify-center shadow-sm  hover:bg-rose-500 hover:text-white transition-all"
+              className="absolute -top-1.5 -right-1.5 text-xs bg-white border border-(--border) rounded-full text-rose-500 w-5 h-5 flex items-center justify-center shadow-sm  hover:bg-rose-500 hover:text-white transition-all"
             >
               ✕
             </button>
@@ -66,13 +66,13 @@ export default function FreePhrases({
       </div>
 
       <div className=" pt-2 flex flex-col gap-2">
-        <label className="text-sm text-[#242038]/80 font-bold">Nueva frase:</label>
+        <label className="text-sm text-(--foreground)/80 font-bold">Nueva frase:</label>
         <textarea
           rows={3}
           value={newPhrase}
           onChange={(e) => setNewPhrase(e.target.value)}
           placeholder="Escribe tu frase..."
-          className="w-full border border-[#CAC4CE] rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-[#9067C6] outline-none"
+          className="w-full border border-(--border) rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-(--primary) outline-none"
         />
         <button
           onClick={() => {
@@ -84,7 +84,7 @@ export default function FreePhrases({
               alert("La frase está vacía o contiene contenido no permitido.");
             }
           }}
-          className="self-start bg-[#9067C6] hover:bg-[#8D86C9] text-white px-4 py-2 rounded-lg flex items-center gap-1 font-medium shadow-sm transition-all"
+          className="self-start bg-(--primary) hover:bg-(--primary-hover) text-white px-4 py-2 rounded-lg flex items-center gap-1 font-medium shadow-sm transition-all"
         >
           <FilePlus size={16} /> Guardar
         </button>

@@ -40,7 +40,7 @@ export default function Composer({ user }: { user: User }) {
   const { copyPrompt, clearPrompt } = usePromptActions(promptText, setPromptText);
 
   return (
-    <div className="flex flex-col sm:flex-row text-[#242038] justify-stretch">
+    <div className="flex flex-col sm:flex-row text-(--foreground) justify-stretch">
       <Sidebar
         data={data}
         newFolder={newFolder}

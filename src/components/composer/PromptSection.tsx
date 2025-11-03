@@ -14,16 +14,16 @@ export default function PromptSection({
   clearPrompt,
 }: PromptSectionProps) {
   return (
-    <section className="bg-white border border-[#CAC4CE] rounded-lg shadow-lg p-3 flex flex-col flex-1 max-h-[350px]">
+    <section className="bg-white border border-(--border) rounded-lg shadow-lg p-3 flex flex-col flex-1 max-h-[350px]">
       <div className="flex justify-between items-center mb-3">
-        <h3 className="text-lg font-semibold flex items-center gap-2 text-[#242038]">
-          <Clipboard className="text-[#9067C6]" size={18} />
+        <h3 className="text-lg font-semibold flex items-center gap-2 text-(--foreground)">
+          <Clipboard className="text-(--primary)" size={18} />
           Prompt generado
         </h3>
         <div className="flex gap-2">
           <button
             onClick={copyPrompt}
-            className="bg-[#9067C6] hover:bg-[#8D86C9] text-white px-3 py-1.5 rounded-md flex items-center gap-1 text-sm font-medium shadow-sm transition-all"
+            className="bg-(--primary) hover:bg-(--primary-hover) text-white px-3 py-1.5 rounded-md flex items-center gap-1 text-sm font-medium shadow-sm transition-all"
           >
             <Clipboard size={16} /> Copiar
           </button>
@@ -41,7 +41,7 @@ export default function PromptSection({
         value={promptText}
         onChange={(e) => setPromptText(e.target.value)}
         placeholder="Doble clic en frases o escribe manualmente..."
-        className="w-full flex-1 border border-[#CAC4CE] rounded-lg p-3 text-sm font-mono resize-none focus:ring-2 focus:ring-[#9067C6] outline-none bg-[#F7ECE1]"
+        className="w-full flex-1 border border-[#CAC4CE] rounded-lg p-3 text-sm font-mono resize-none focus:ring-2 focus:ring-(--primary) outline-none bg-(--light)"
       />
     </section>
   );

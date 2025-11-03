@@ -11,8 +11,7 @@ export const metadata: Metadata = {
   description: "Crea y organiza tus prompts personalizados",
   icons: {
     icon: "/faviconicon.png",
-  },
-  themeColor: '#1483B4'
+  }
 };
 
 export default function RootLayout({

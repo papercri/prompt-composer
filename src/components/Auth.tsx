@@ -18,7 +18,12 @@ export default function Auth({
   if (!user) return <LoginScreen />;
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-gradient-to-br from-[#F7ECE1] to-[#EDE3E9] text-[#242038]">
+    <div
+      className="flex flex-col min-h-screen w-full bg-linear-to-br text-(--foreground)"
+      style={{
+        backgroundImage:
+          "linear-gradient(to bottom right, var(--light), var(--background))",
+      }}>
       <Header user={user} onShowInfo={() => setShowInfo(true)} />
       <main className="flex-1 flex flex-col pt-20 w-full overflow-auto max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-10">
         {children(user)}

@@ -53,22 +53,22 @@ export default function Sidebar({
 }: SidebarProps) {
 
   return (
-    <aside className="w-full sm:w-80 lg:w-120 bg-[#F7ECE1] text-[#242038] flex flex-col p-2">
+    <aside className="w-full sm:w-80 lg:w-120 bg-(--light) text-(--foreground) flex flex-col p-2">
       {/* Crear carpeta */}
       <div className="pb-1">
         <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <FolderPlus size={18} className="text-[#9067C6]" /> Carpetas
+          <FolderPlus size={18} className="text-(--primary)" /> Carpetas
         </h2>
         <div className="flex gap-2 items-center">
           <input
             value={newFolder}
             onChange={(e) => setNewFolder(e.target.value)}
             placeholder="Nueva carpeta"
-            className="flex-1 px-3 py-2 rounded-lg text-sm text-[#242038] border border-[#CAC4CE] focus:ring-2 focus:ring-[#9067C6] outline-none"
+            className="flex-1 px-3 py-2 rounded-lg text-sm text-(--foreground) border border-(--border) focus:ring-2 focus:ring-(--primary) outline-none"
           />
           <button
             onClick={addFolder}
-            className="bg-[#9067C6] hover:bg-[#8D86C9] text-white px-3 py-2 rounded-lg flex items-center gap-1 transition-all text-sm font-medium"
+            className="bg-(--primary) hover:bg-(--primary-hover) text-white px-3 py-2 rounded-lg flex items-center gap-1 transition-all text-sm font-medium"
           >
             <FolderPlus size={16} /> Crear
           </button>
@@ -78,7 +78,7 @@ export default function Sidebar({
       {/* Listado de carpetas */}
       <div className="mt-2 flex-1 overflow-auto pr-1 space-y-2">
         {Object.keys(data.folders).length === 0 && (
-          <p className="text-sm text-[#242038] italic">Sin carpetas</p>
+          <p className="text-sm text-(--foreground) italic">Sin carpetas</p>
         )}
 
         {Object.keys(data.folders).map((folder: string) => (

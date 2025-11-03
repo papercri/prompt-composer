@@ -4,7 +4,7 @@ import { signInWithGoogle, signInWithGithub } from "@/lib/firebase";
 
 export default function LoginScreen() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#242038] to-[#9067C6] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-(--foreground) to-(--primary) px-4">
       <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 md:p-10 rounded-3xl shadow-2xl max-w-sm w-full text-center text-white">
         <h1 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-white">
           Prompt Composer
@@ -16,7 +16,7 @@ export default function LoginScreen() {
         <div className="flex flex-col gap-3">
           <button
             onClick={signInWithGoogle}
-            className="flex items-center justify-center gap-2 bg-white  hover:bg-[#F7ECE1] text-[#DB4437] px-4 py-2.5 rounded-xl font-medium shadow-md transition-all"
+            className="flex items-center justify-center gap-2 bg-white  hover:bg-(--light) text-[#DB4437] px-4 py-2.5 rounded-xl font-medium shadow-md transition-all"
           >
             <img
               src="/google-color.svg"
@@ -28,7 +28,7 @@ export default function LoginScreen() {
 
           {/* <button
             onClick={signInWithGithub}
-            className="flex items-center justify-center gap-2 bg-white   text-[#242038]  hover:bg-[#F7ECE1] px-4 py-2.5 rounded-xl font-medium shadow-md transition-all "
+            className="flex items-center justify-center gap-2 bg-white   text-(--foreground)  hover:bg-(--light) px-4 py-2.5 rounded-xl font-medium shadow-md transition-all "
           >
             <img
               src="/github.svg"
@@ -45,7 +45,7 @@ export default function LoginScreen() {
             href="https://www.linkedin.com/in/cristianasollini/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#D4BEE4] hover:text-white transition-colors"
+            className="text-(--rose) hover:text-white transition-colors"
           >
             @papercri
           </a>

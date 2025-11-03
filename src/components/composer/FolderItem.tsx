@@ -47,8 +47,8 @@ export default function FolderItem({
 }: FolderItemProps) {
   return (
     <div
-      className={`border border-[#CAC4CE] rounded-lg overflow-hidden shadow-sm transition-all ${
-        dragOverFolder === folder ? "bg-[#CAC4CE]/50" : "bg-[#8D86C9]/10"
+      className={`border border-(--border) rounded-lg overflow-hidden shadow-sm transition-all ${
+        dragOverFolder === folder ? "bg-(--border)/50" : "bg-(--primary-hover)/10"
       }`}
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={() => setDragOverFolder(folder)}
@@ -59,7 +59,7 @@ export default function FolderItem({
         onClick={() =>
           setOpenFolders((prev) => ({ ...prev, [folder]: !prev[folder] }))
         }
-        className="flex items-center justify-between px-3 py-1 cursor-pointer hover:bg-[#8D86C9]/20 transition-all"
+        className="flex items-center justify-between px-3 py-1 cursor-pointer hover:bg-(--primary-hover)/20 transition-all"
       >
         <div className="flex items-center gap-2">
           {editingFolder === folder ? (
@@ -67,7 +67,7 @@ export default function FolderItem({
               <input
                 value={editingFolderName}
                 onChange={(e) => setEditingFolderName(e.target.value)}
-                className="px-2 py-1 text-sm border border-[#CAC4CE] rounded-md focus:ring-2 focus:ring-[#9067C6] outline-none w-36"
+                className="px-2 py-1 text-sm border border-(--border) rounded-md focus:ring-2 focus:ring-(--primary) outline-none w-36"
               />
               <button
                 onClick={(e) => {
@@ -91,14 +91,14 @@ export default function FolderItem({
           ) : (
             <>
               {openFolders[folder] ? (
-                <FolderOpen className="text-[#9067C6]" size={18} />
+                <FolderOpen className="text-(--primary)" size={18} />
               ) : (
-                <Folder className="text-[#242038]" size={18} />
+                <Folder className="text-(--foreground)" size={18} />
               )}
 
-              <span className="font-medium text-[#242038]">
+              <span className="font-medium text-(--foreground)">
                 {folder}
-                <span className="text-xs text-[#8D86C9] ml-1">
+                <span className="text-xs text-(--primary-hover) ml-1">
                   ({data.folders[folder].length})
                 </span>
               </span>
@@ -112,7 +112,7 @@ export default function FolderItem({
               e.stopPropagation();
               startEditFolder(folder);
             }}
-            className="text-[#8D86C9] hover:text-[#9067C6]"
+            className="text-(--primary-hover) hover:text-(--primary)"
             title="Modificar carpeta"
           >
             <Edit3 size={16} />
@@ -139,7 +139,7 @@ export default function FolderItem({
                 onDoubleClick={() => appendToPrompt(phrase)}
                 draggable
                 onDragStart={(e) => onDragStart(e, "folder", folder, index)}
-                className="relative bg-white border border-[#CAC4CE] rounded-lg px-2 py-1 text-xs cursor-pointer hover:shadow-md transition-all"
+                className="relative bg-white border border-(--border) rounded-lg px-2 py-1 text-xs cursor-pointer hover:shadow-md transition-all"
               >
                 {phrase}
                 <button
@@ -150,7 +150,7 @@ export default function FolderItem({
                       deletePhrase(folder, index);
                     }
                   }}
-                  className="absolute -top-1.5 -right-2.5 text-xs bg-white border border-[#CAC4CE] rounded-full text-rose-500 w-5 h-5 flex items-center justify-center shadow-sm hover:bg-rose-500 hover:text-white transition-all"
+                  className="absolute -top-1.5 -right-2.5 text-xs bg-white border border-(--border) rounded-full text-rose-500 w-5 h-5 flex items-center justify-center shadow-sm hover:bg-rose-500 hover:text-white transition-all"
                   title="Eliminar frase"
                 >
                   ✕
@@ -158,7 +158,7 @@ export default function FolderItem({
               </div>
             ))
           ) : (
-            <div className="text-xs italic text-[#8D86C9] p-2">Sin frases</div>
+            <div className="text-xs italic text-(--primary-hover) p-2">Sin frases</div>
           )}
         </div>
       )}
