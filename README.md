@@ -2,6 +2,10 @@
 
 Prompt Composer es una aplicación web construida con Next.js y TypeScript que permite crear, organizar y combinar frases para generar prompts de manera rápida y eficiente. Las frases se pueden guardar en carpetas, arrastrar y soltar, y generar un prompt completo listo para copiar y usar en ChatGPT u otras IA.
 
+## Demo
+
+[https://prompt-composer-ai.vercel.app/](https://prompt-composer-ai.vercel.app/)
+
 ## Características
 
 - Inicio de sesión con Google o con email y contraseña.
