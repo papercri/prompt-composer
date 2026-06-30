@@ -4,6 +4,8 @@ import {
   getAuth,
   onAuthStateChanged,
   signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   GoogleAuthProvider,
   GithubAuthProvider,
   signOut as firebaseSignOut,
@@ -39,3 +41,10 @@ export const signOut = () => firebaseSignOut(auth);
 // Listener de auth
 export const watchAuthState = (callback: (user: User | null) => void) =>
   onAuthStateChanged(auth, callback);
+// Login con email/password
+export const signInWithEmail = (email: string, password: string) =>
+  signInWithEmailAndPassword(auth, email, password);
+
+// Registro con email/password
+export const signUpWithEmail = (email: string, password: string) =>
+  createUserWithEmailAndPassword(auth, email, password);
