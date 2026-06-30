@@ -60,6 +60,7 @@ export function EmailPasswordForm({ mode }: EmailPasswordFormProps) {
       <input
         type="email"
         placeholder="Email"
+        autoComplete="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         onBlur={() => setTouched((t) => ({ ...t, email: true }))}

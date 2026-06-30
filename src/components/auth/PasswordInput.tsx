@@ -7,9 +7,10 @@ type PasswordInputProps = {
   onChange: (value: string) => void;
   onBlur: () => void;
   hasError: boolean;
+  autoComplete?: "current-password" | "new-password";
 };
 
-export function PasswordInput({ value, onChange, onBlur, hasError }: PasswordInputProps) {
+export function PasswordInput({ value, onChange, onBlur, hasError,  autoComplete = "current-password" }: PasswordInputProps) {
   const [show, setShow] = useState(false);
 
   const inputClass = `bg-white/10 border rounded-xl px-4 py-2.5 text-white placeholder:text-slate-300 outline-none transition-colors w-full pr-11 ${
@@ -21,6 +22,7 @@ export function PasswordInput({ value, onChange, onBlur, hasError }: PasswordInp
       <input
         type={show ? "text" : "password"}
         placeholder="Contraseña"
+        autoComplete={autoComplete}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur}
